@@ -74,7 +74,7 @@ export class ShopeeClient {
     this.validateConfig(config);
 
     this.httpClient = new HttpClient(config);
-    this.tokenManager = new TokenManager(this.httpClient);
+    this.tokenManager = new TokenManager(this.httpClient, config.onTokenRefresh);
 
     // Initialize modules
     this.auth = new AuthModule(this.httpClient, this.tokenManager);

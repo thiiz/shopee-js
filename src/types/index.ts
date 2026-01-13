@@ -41,6 +41,8 @@ export interface ShopeeConfig {
   baseUrl?: string;
   /** Enable debug logging */
   debug?: boolean;
+  /** Callback triggered when a token is automatically refreshed */
+  onTokenRefresh?: (data: ShopTokenData | MerchantTokenData) => void | Promise<void>;
 }
 
 /**
