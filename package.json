@@ -1,0 +1,52 @@
+{
+  "name": "shopee-js",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for Shopee Open Platform API v2",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target node && bun run build:types",
+    "build:types": "tsc --emitDeclarationOnly --declaration --outDir ./dist",
+    "dev": "bun --watch src/index.ts",
+    "test": "bun test",
+    "lint": "bunx @biomejs/biome check ./src",
+    "format": "bunx @biomejs/biome format --write ./src",
+    "prepublishOnly": "bun run build"
+  },
+  "keywords": [
+    "shopee",
+    "api",
+    "sdk",
+    "e-commerce",
+    "marketplace",
+    "open-platform"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/shopee-js"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.7.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
