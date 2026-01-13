@@ -84,29 +84,23 @@ app.get("/callback", async (req, res) => {
 });
 ```
 
-### 3. Token Persistence (Important!)
+### 3. Token Management (Stateless)
 
-The SDK manages tokens in memory, but for production, you must restore them from your database when the client starts.
+The SDK is stateless. You must persist tokens in your database and provide the `accessToken` for each API call.
+
+#### Refreshing Tokens
+
+Access tokens expire after 4 hours. Use the `refreshToken` (valid for 30 days) to get a new one:
 
 ```typescript
-// When loading your application or processing a request for a specific shop
-const shopData = await db.shops.find(123456);
+const tokens = await client.auth.refreshShopToken(shopId, refreshToken);
 
-if (shopData) {
-  client.auth.setShopToken(
-    shopData.shopId,
-    shopData.accessToken,
-    shopData.refreshToken,
-    shopData.expiresAt // Timestamp in milliseconds
-  );
-}
-
-/**
- * Note on Refreshing:
- * The SDK will automatically refresh the access_token in memory if it expires.
- * To persist the new tokens after an automatic refresh, you can periodically
- * check for changes or save the new token data after API calls if required.
- */
+// Update your database with new tokens!
+await db.shops.update(shopId, {
+  accessToken: tokens.access_token,
+  refreshToken: tokens.refresh_token,
+  expiresAt: Date.now() + tokens.expire_in * 1000,
+});
 ```
 
 ---
@@ -118,7 +112,7 @@ if (shopData) {
 Manage basic shop information and configurations.
 
 ```typescript
-const shopInfo = await client.shop.getShopInfo(123456);
+const shopInfo = await client.shop.getShopInfo(123456, accessToken);
 console.log(`Shop: ${shopInfo.shop_name}`);
 ```
 
@@ -128,8 +122,8 @@ List, search, and manage products.
 
 ```typescript
 // Iterate over ALL products (Automatic Pagination!)
-for await (const item of client.product.iterateItems(123456, {
-  itemStatus: "NORMAL",
+for await (const item of client.product.iterateItems(123456, accessToken, {
+  itemStatus: ["NORMAL"],
 })) {
   console.log(`Item ID: ${item.itemId}`);
 }
@@ -141,12 +135,21 @@ Manage orders, cancellations, and returns.
 
 ```typescript
 // List recent orders
-const orders = await client.order.listOrders(123456, {
+const orders = await client.order.listOrders(123456, accessToken, {
   timeRangeField: "create_time",
   timeFrom: Math.floor(Date.now() / 1000) - 86400,
   timeTo: Math.floor(Date.now() / 1000),
   pageSize: 20,
 });
+
+// Iterate over orders (Automatic Pagination!)
+for await (const order of client.order.iterateOrders(123456, accessToken, {
+  timeRangeField: "create_time",
+  timeFrom: Math.floor(Date.now() / 1000) - 86400,
+  timeTo: Math.floor(Date.now() / 1000),
+})) {
+  console.log(`Order SN: ${order.orderSn}`);
+}
 ```
 
 ### 📢 Marketing (Ads)
@@ -180,7 +183,7 @@ The SDK throws `ShopeeApiError` when the API returns an error.
 import { ShopeeApiError } from "shopee-js";
 
 try {
-  await client.shop.getShopInfo(123456);
+  await client.shop.getShopInfo(123456, accessToken);
 } catch (error) {
   if (error instanceof ShopeeApiError) {
     console.error(`Status: ${error.errorCode} - ${error.message}`);
