@@ -7,7 +7,7 @@
 import { generateSignature, getTimestamp } from '../auth/signature.js';
 import type { TokenManager } from '../auth/token-manager.js';
 import type { HttpClient } from '../http/client.js';
-import { API_PATHS } from '../http/endpoints.js';
+import { API_PATHS, getApiHost } from '../http/endpoints.js';
 import type { GetAccessTokenResponse } from '../types/index.js';
 
 export interface GenerateAuthLinkOptions {
@@ -57,7 +57,8 @@ export class AuthModule {
       redirect: options.redirectUrl,
     });
 
-    return `${this.httpClient.getBaseUrl()}${path}?${params.toString()}`;
+    const baseUrl = getApiHost(this.httpClient.getEnvironment(), this.httpClient.getRegion());
+    return `${baseUrl}${path}?${params.toString()}`;
   }
 
   /**

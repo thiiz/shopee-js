@@ -6,11 +6,11 @@
 
 import { generateSignature, getTimestamp } from '../auth/signature.js';
 import type {
-    ApiResponse,
-    Environment,
-    Region,
-    RequestOptions,
-    ShopeeConfig,
+  ApiResponse,
+  Environment,
+  Region,
+  RequestOptions,
+  ShopeeConfig,
 } from '../types/index.js';
 import { ShopeeApiError } from '../types/index.js';
 import { getApiHost } from './endpoints.js';
@@ -34,7 +34,7 @@ export class HttpClient {
     this.region = config.region ?? 'sg';
     this.timeout = config.timeout ?? 30000;
     this.debug = config.debug ?? false;
-    this.baseUrl = getApiHost(this.environment, this.region);
+    this.baseUrl = config.baseUrl ?? getApiHost(this.environment, this.region);
   }
 
   /**
@@ -127,7 +127,11 @@ export class HttpClient {
       );
     }
 
-    return data.response as T;
+    // Some APIs (like Auth) return data at root level
+    if (data.response !== undefined) {
+      return data.response as T;
+    }
+    return data as unknown as T;
   }
 
   /**
@@ -181,5 +185,13 @@ export class HttpClient {
    */
   getPartnerKey(): string {
     return this.partnerKey;
+  }
+
+  getEnvironment(): Environment {
+    return this.environment;
+  }
+
+  getRegion(): Region {
+    return this.region;
   }
 }

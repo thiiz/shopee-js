@@ -37,6 +37,8 @@ export interface ShopeeConfig {
   region?: Region;
   /** Request timeout in milliseconds (default: 30000) */
   timeout?: number;
+  /** Custom base URL (useful for proxying requests) */
+  baseUrl?: string;
   /** Enable debug logging */
   debug?: boolean;
 }

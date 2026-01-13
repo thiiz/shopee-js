@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shopee-JS SDK Tester</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Shopee-JS SDK Tester</h1>
+        <p class="subtitle">
+          Interactive test harness for the Shopee Open Platform v2 SDK
+        </p>
+      </header>
+
+      <div class="grid">
+        <!-- Configuration -->
+        <section class="card">
+          <h2>⚙️ Configuration</h2>
+          <div class="form-group">
+            <label for="partnerId">Partner ID</label>
+            <input type="number" id="partnerId" placeholder="123456" value="" />
+          </div>
+          <div class="form-group">
+            <label for="partnerKey">Partner Key</label>
+            <input
+              type="password"
+              id="partnerKey"
+              placeholder="Your Partner Key"
+              value=""
+            />
+          </div>
+          <div class="form-group">
+            <label for="environment">Environment</label>
+            <select id="environment">
+              <option value="sandbox" selected>Sandbox</option>
+              <option value="production">Production</option>
+            </select>
+          </div>
+          <button id="initBtn">Initialize Client</button>
+        </section>
+
+        <!-- Auth Flow -->
+        <section class="card">
+          <h2>🔐 OAuth Flow</h2>
+          <div class="form-group">
+            <label for="redirectUrl">Redirect URL</label>
+            <input
+              type="text"
+              id="redirectUrl"
+              placeholder="https://localhost:3000"
+              value="https://google.com"
+            />
+          </div>
+          <div style="display: flex; gap: 1rem; margin-bottom: 1rem">
+            <button id="genLinkBtn" class="secondary-btn" disabled>
+              Generate Link
+            </button>
+          </div>
+          <div id="authLinkContainer" class="hidden form-group">
+            <label>Auth Link</label>
+            <input type="text" id="authLinkResult" readonly />
+            <a
+              href="#"
+              id="openAuthLink"
+              target="_blank"
+              style="
+                display: block;
+                margin-top: 0.5rem;
+                color: var(--primary);
+                text-decoration: none;
+              "
+              >Open in new tab &nearr;</a
+            >
+          </div>
+
+          <div
+            class="form-group"
+            style="
+              margin-top: 1rem;
+              border-top: 1px solid var(--border);
+              padding-top: 1rem;
+            "
+          >
+            <label for="authCode">Auth Code (from URL)</label>
+            <input type="text" id="authCode" placeholder="code=..." />
+          </div>
+          <div class="form-group">
+            <label for="shopId">Shop ID</label>
+            <input
+              type="number"
+              id="shopId"
+              placeholder="123..."
+              class="bg-slate-800"
+            />
+          </div>
+          <button id="getTokenBtn" disabled>Get Access Token</button>
+        </section>
+
+        <!-- Shop Actions -->
+        <section class="card section-full">
+          <h2>🛍️ Shop Actions</h2>
+          <div style="display: flex; gap: 1rem">
+            <button id="getShopInfoBtn" class="secondary-btn" disabled>
+              Get Shop Info
+            </button>
+            <button id="getOrdersBtn" class="secondary-btn" disabled>
+              List Orders (24h)
+            </button>
+          </div>
+        </section>
+
+        <!-- Logs -->
+        <section class="card section-full">
+          <h2>📜 Logs & Output</h2>
+          <div id="output"></div>
+          <button
+            id="clearLogsBtn"
+            class="secondary-btn"
+            style="margin-top: 1rem; width: auto"
+          >
+            Clear Logs
+          </button>
+        </section>
+      </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
