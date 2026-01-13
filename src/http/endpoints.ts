@@ -91,4 +91,9 @@ export const API_PATHS = {
   // Media
   UPLOAD_IMAGE: '/api/v2/media_space/upload_image',
   UPLOAD_VIDEO: '/api/v2/media_space/upload_video',
+
+  // Marketing (Ads)
+  GET_AD_LIST: '/api/v2/ads/get_ad_list',
+  GET_SHOP_ADS_DAILY_REPORT: '/api/v2/ads/get_shop_ads_daily_report',
+  MUTATE_ADS: '/api/v2/ads/mutate_ads',
 } as const;

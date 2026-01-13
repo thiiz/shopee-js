@@ -801,6 +801,100 @@ export type ReturnReason =
   | 'DIFFERENT_DESCRIPTION';
 
 // ============================================
+// Ads / Marketing Types (Public Ads)
+// ============================================
+
+/**
+ * Ad Types
+ */
+export type AdType = 'product_search_ad' | 'discovery_ad';
+
+/**
+ * Ad Status
+ */
+export type AdStatus = 'ongoing' | 'paused' | 'scheduled' | 'ended' | 'deleted';
+
+/**
+ * Ad Placement
+ */
+export type AdPlacement = 'all' | 'search_results' | 'landing_page';
+
+export interface AdObject {
+  ad_id: number;
+  shop_id: number;
+  item_id: number;
+  campaign_id: number;
+  account_id: number;
+  keyword_list?: AdKeyword[];
+  placement?: AdPlacement;
+  start_time: number;
+  end_time?: number;
+  ad_status: AdStatus;
+  ad_type: AdType;
+  daily_budget?: number;
+  total_budget?: number;
+}
+
+export interface AdKeyword {
+  keyword: string;
+  match_type: 'broad' | 'exact';
+  bid_price: number;
+  status: 'active' | 'paused' | 'deleted';
+}
+
+export interface AdDailyPerformance {
+  date: string; // YYYY-MM-DD
+  shop_id: number;
+  impressions: number;
+  clicks: number;
+  ctr: number;
+  conversions: number;
+  direct_conversions: number;
+  cost: number;
+  gmv: number;
+  direct_gmv: number;
+  roi: number;
+  direct_roi: number;
+}
+
+export interface GetAdListParams {
+  type: AdType;
+  ids?: number[];
+  item_id?: number;
+  status?: AdStatus;
+  page_size?: number;
+  offset?: number;
+}
+
+export interface GetAdListResponse {
+  ads: AdObject[];
+  total_count: number;
+}
+
+export interface GetShopAdsDailyReportParams {
+  date: string; // YYYY-MM-DD
+}
+
+export interface GetShopAdsDailyReportResponse {
+  performance_list: AdDailyPerformance[];
+}
+
+export interface MutateAdsParams {
+  operation: 'create' | 'update' | 'delete';
+  ads: Partial<AdObject>[];
+}
+
+export interface MutateAdsResponse {
+  results: Array<{
+    ad_id?: number;
+    error_message?: string;
+    success: boolean;
+  }>;
+}
+
+
+
+// ============================================
 // Push/Webhook Types
 // ============================================
 

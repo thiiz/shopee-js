@@ -28,6 +28,7 @@ export { TokenManager } from './auth/token-manager.js';
 // Modules (for advanced usage)
 export { AuthModule } from './modules/auth.js';
 export { LogisticsModule } from './modules/logistics.js';
+export { MarketingModule } from './modules/marketing.js';
 export { OrderModule } from './modules/order.js';
 export { ProductModule } from './modules/product.js';
 export { ShopModule } from './modules/shop.js';

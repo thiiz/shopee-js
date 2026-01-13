@@ -65,6 +65,12 @@ describe('ShopeeClient', () => {
       expect(client.product).toBeDefined();
       expect(typeof client.product.getCategories).toBe('function');
     });
+
+    test('has marketing module', () => {
+      const client = new ShopeeClient(validConfig);
+      expect(client.marketing).toBeDefined();
+      expect(typeof client.marketing.getAdList).toBe('function');
+    });
   });
 
   describe('auth.generateAuthLink', () => {

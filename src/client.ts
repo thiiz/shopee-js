@@ -8,6 +8,7 @@ import { TokenManager } from './auth/token-manager.js';
 import { HttpClient } from './http/client.js';
 import { AuthModule } from './modules/auth.js';
 import { LogisticsModule } from './modules/logistics.js';
+import { MarketingModule } from './modules/marketing.js';
 import { OrderModule } from './modules/order.js';
 import { ProductModule } from './modules/product.js';
 import { ShopModule } from './modules/shop.js';
@@ -66,6 +67,9 @@ export class ShopeeClient {
   /** Logistics and shipping module */
   public readonly logistics: LogisticsModule;
 
+  /** Marketing and ads module */
+  public readonly marketing: MarketingModule;
+
   /**
    * Creates a new Shopee client instance.
    * 
@@ -83,6 +87,7 @@ export class ShopeeClient {
     this.order = new OrderModule(this.httpClient);
     this.product = new ProductModule(this.httpClient);
     this.logistics = new LogisticsModule(this.httpClient);
+    this.marketing = new MarketingModule(this.httpClient);
   }
 
   /**
