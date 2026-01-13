@@ -12,6 +12,7 @@ The most complete and robust TypeScript/JavaScript SDK for the [Shopee Open Plat
 - 🌍 **Multi-Region Support**: Configured to work with Singapore (`sg`), China (`cn`), and Brazil (`br`).
 - 🔄 **Automatic Pagination**: Async iterators (`for await`) to traverse large lists of orders or products without manually handling cursors.
 - 🛡️ **Error Handling**: Dedicated error classes with clear API codes and messages.
+- 📢 **Marketing & Ads**: Dedicated module for Shopee Ads, daily performance reports, and ad management.
 - 🚀 **Zero Runtime Dependencies**: Built on top of `fetch` and `Web Crypto API`, making it lightweight and compatible with Edge Runtimes (Cloudflare Workers, Vercel Edge, Bun, Deno).
 
 ---
@@ -146,6 +147,27 @@ const orders = await client.order.listOrders(123456, {
   timeTo: Math.floor(Date.now() / 1000),
   pageSize: 20,
 });
+```
+
+### 📢 Marketing (Ads)
+
+Manage Shopee Ads and track performance.
+
+```typescript
+// List ongoing ads
+const ads = await client.marketing.getAdList(123456, accessToken, {
+  type: "product_search_ad",
+  status: "ongoing",
+});
+
+// Get yesterday's performance report
+const report = await client.marketing.getShopAdsDailyReport(
+  123456,
+  accessToken,
+  {
+    date: "2023-10-01",
+  }
+);
 ```
 
 ---
