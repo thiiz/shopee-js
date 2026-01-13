@@ -270,7 +270,7 @@ To contribute or run tests locally:
 
 ```bash
 # Clone
-git clone https://github.com/your-username/shopee-js.git
+git clone https://github.com/thiiz/shopee-js.git
 
 # Install
 bun install

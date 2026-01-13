@@ -1,6 +1,6 @@
 {
   "name": "shopee-js",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TypeScript SDK for Shopee Open Platform API v2",
   "type": "module",
   "main": "./dist/index.js",
@@ -37,7 +37,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/shopee-js"
+    "url": "https://github.com/thiiz/shopee-js"
   },
   "devDependencies": {
     "@types/bun": "latest",
