@@ -24,15 +24,8 @@ export class TokenManager {
   /** Buffer time before token expiration to trigger refresh (5 minutes) */
   private refreshBuffer = 5 * 60 * 1000;
 
-  /** Callback for token refresh events */
-  private onTokenRefresh?: (data: ShopTokenData | MerchantTokenData) => void | Promise<void>;
-
-  constructor(
-    httpClient: HttpClient,
-    onTokenRefresh?: (data: ShopTokenData | MerchantTokenData) => void | Promise<void>
-  ) {
+  constructor(httpClient: HttpClient) {
     this.httpClient = httpClient;
-    this.onTokenRefresh = onTokenRefresh;
   }
 
   /**
@@ -127,20 +120,13 @@ export class TokenManager {
 
     // Update stored token
     const expiresAt = Date.now() + (response.expire_in * 1000);
-    const newTokenData: ShopTokenData = {
+    this.shopTokens.set(shopId, {
       shopId,
       accessToken: response.access_token,
       refreshToken: response.refresh_token,
       expireIn: response.expire_in,
       expiresAt,
-    };
-
-    this.shopTokens.set(shopId, newTokenData);
-
-    // Notify callback
-    if (this.onTokenRefresh) {
-      await this.onTokenRefresh(newTokenData);
-    }
+    });
 
     return response;
   }
@@ -168,20 +154,13 @@ export class TokenManager {
 
     // Update stored token
     const expiresAt = Date.now() + (response.expire_in * 1000);
-    const newTokenData: MerchantTokenData = {
+    this.merchantTokens.set(merchantId, {
       merchantId,
       accessToken: response.access_token,
       refreshToken: response.refresh_token,
       expireIn: response.expire_in,
       expiresAt,
-    };
-
-    this.merchantTokens.set(merchantId, newTokenData);
-
-    // Notify callback
-    if (this.onTokenRefresh) {
-      await this.onTokenRefresh(newTokenData);
-    }
+    });
 
     return response;
   }

@@ -7,7 +7,7 @@ The most complete and robust TypeScript/JavaScript SDK for the [Shopee Open Plat
 
 ## 🌟 Highlights
 
-- 🔐 **Complete OAuth Flow**: Authorization link generation, code-to-token comparison, and automatic token renewal (refresh token) with persistence support.
+- 🔐 **Complete OAuth Flow**: Authorization link generation, code-to-token exchange, and automatic token renewal (refresh token).
 - 📦 **Strong Typing (TypeScript)**: All requests and responses are fully typed, ensuring autocomplete and compile-time safety.
 - 🌍 **Multi-Region Support**: Configured to work with Singapore (`sg`), China (`cn`), and Brazil (`br`).
 - 🔄 **Automatic Pagination**: Async iterators (`for await`) to traverse large lists of orders or products without manually handling cursors.
@@ -24,12 +24,6 @@ bun add shopee-js
 
 # Using npm
 npm install shopee-js
-
-# Using pnpm
-pnpm add shopee-js
-
-# Using yarn
-yarn add shopee-js
 ```
 
 ---
@@ -46,17 +40,6 @@ const client = new ShopeeClient({
   partnerKey: "your-key", // Your Partner Key (Secret)
   environment: "sandbox", // 'sandbox' or 'production'
   region: "br", // 'sg', 'cn' or 'br'
-
-  // Optional: Automatic Token Persistence Callback
-  onTokenRefresh: async (tokenData) => {
-    console.log("Token Refreshed for Shop:", tokenData.shopId);
-    // Save new token to your database
-    await db.shops.update(tokenData.shopId, {
-      accessToken: tokenData.accessToken,
-      refreshToken: tokenData.refreshToken,
-      expiresAt: tokenData.expiresAt,
-    });
-  },
 });
 ```
 
@@ -79,34 +62,33 @@ console.log("Send the seller to this link:", authLink);
 When the seller authorizes, they are redirected to your `redirectUrl` with a `code` and `shop_id`.
 
 ```typescript
-// Example in a route handler
-const code = req.query.code;
-const shopId = Number(req.query.shop_id);
+// Example in a route handler (Express/Next.js)
+app.get("/callback", async (req, res) => {
+  const code = req.query.code as string;
+  const shopId = Number(req.query.shop_id);
 
-const tokenResponse = await client.auth.getAccessToken({
-  code,
-  shopId,
-});
+  const tokenResponse = await client.auth.getAccessToken({
+    code,
+    shopId,
+  });
 
-console.log("Access Token:", tokenResponse.access_token);
-console.log("Refresh Token:", tokenResponse.refresh_token);
+  // IMPORTANT: Save these tokens to your database associated with the shopId!
+  await db.shops.update(shopId, {
+    accessToken: tokenResponse.access_token,
+    refreshToken: tokenResponse.refresh_token,
+    expiresAt: Date.now() + tokenResponse.expire_in * 1000,
+  });
 
-// IMPORTANT: Save these initial tokens to your database!
-await db.shops.update(shopId, {
-  accessToken: tokenResponse.access_token,
-  refreshToken: tokenResponse.refresh_token,
-  expiresAt: Date.now() + tokenResponse.expire_in * 1000,
+  res.send("Authorization successful!");
 });
 ```
 
-### 3. Token Persistence (New!)
+### 3. Token Persistence (Important!)
 
-The SDK manages tokens in memory for performance, but you simply need to load them once when your app starts.
-
-Using the `onTokenRefresh` callback (configured in step 1), the SDK will **automatically** call your database update function whenever it refreshes a token internally. You no longer need to setup cron jobs or manual storage logic.
+The SDK manages tokens in memory, but for production, you must restore them from your database when the client starts.
 
 ```typescript
-// When loading your application or processing a request:
+// When loading your application or processing a request for a specific shop
 const shopData = await db.shops.find(123456);
 
 if (shopData) {
@@ -118,125 +100,52 @@ if (shopData) {
   );
 }
 
-// Result: The SDK will use these tokens, auto-refresh when needed,
-// and call your 'onTokenRefresh' callback to keep DB in sync.
+/**
+ * Note on Refreshing:
+ * The SDK will automatically refresh the access_token in memory if it expires.
+ * To persist the new tokens after an automatic refresh, you can periodically
+ * check for changes or save the new token data after API calls if required.
+ */
 ```
 
 ---
 
 ## 📚 API Modules
 
-### 🛒 Shop
+### 🛒 Shop (Store)
 
-Manage basic shop information and profile.
+Manage basic shop information and configurations.
 
 ```typescript
-// Get Shop Info
 const shopInfo = await client.shop.getShopInfo(123456);
-console.log(`Shop: ${shopInfo.shop_name} (Region: ${shopInfo.region})`);
-
-// Update Profile
-await client.shop.updateProfile(123456, {
-  shopName: "My Awesome Shop",
-  description: "Best shop in town!",
-});
+console.log(`Shop: ${shopInfo.shop_name}`);
 ```
 
 ### 📦 Product
 
-List, search and manage products.
+List, search, and manage products.
 
 ```typescript
-// List items (Manual Pagination)
-const result = await client.product.listItems(123456, {
-  pageSize: 50,
-  itemStatus: "NORMAL",
-});
-
-// Iterate all items (Auto Pagination!)
+// Iterate over ALL products (Automatic Pagination!)
 for await (const item of client.product.iterateItems(123456, {
   itemStatus: "NORMAL",
 })) {
-  console.log(`Product ID: ${item.itemId} - Status: ${item.itemStatus}`);
+  console.log(`Item ID: ${item.itemId}`);
 }
-
-// Get Item Details
-const details = await client.product.getItemBaseInfo(123456, {
-  itemIdList: [10001, 10002],
-});
 ```
 
 ### 📝 Order
 
-Manage orders, cancellations and returns.
+Manage orders, cancellations, and returns.
 
 ```typescript
 // List recent orders
-const now = Math.floor(Date.now() / 1000);
 const orders = await client.order.listOrders(123456, {
   timeRangeField: "create_time",
-  timeFrom: now - 86400, // Last 24h
-  timeTo: now,
+  timeFrom: Math.floor(Date.now() / 1000) - 86400,
+  timeTo: Math.floor(Date.now() / 1000),
   pageSize: 20,
 });
-
-// Iterate all orders in a time range
-for await (const order of client.order.iterateOrders(123456, {
-  timeRangeField: "create_time",
-  timeFrom: now - 86400 * 7,
-  timeTo: now,
-})) {
-  console.log(`Order ${order.orderSn} - Status: ${order.orderStatus}`);
-}
-
-// Cancel Order
-await client.order.cancelOrder(123456, {
-  orderSn: "230101ABCDE123",
-  cancelReason: "OUT_OF_STOCK",
-  itemList: [{ item_id: 123, model_id: 456 }],
-});
-```
-
-### 🚚 Logistics
-
-Manage shipping, labels and tracking.
-
-```typescript
-// 1. Get Shipping Parameters
-const shippingParams = await client.logistics.getShippingParameter(
-  123456,
-  "230101ABCDE123"
-);
-
-// 2. Ship Order (Pickup Example)
-await client.logistics.shipOrder(123456, {
-  orderSn: "230101ABCDE123",
-  pickup: {
-    addressId: shippingParams.pickup.address_list[0].address_id,
-    pickupTimeId: shippingParams.pickup.time_slot_list[0].pickup_time_id,
-  },
-});
-
-// 3. Generate Shipping Label (AWB)
-await client.logistics.createShippingDocument(123456, [
-  {
-    orderSn: "230101ABCDE123",
-    documentType: "NORMAL_AIR_WAYBILL",
-  },
-]);
-
-// 4. Download PDF
-// (Assuming status is READY after checking result)
-const pdfBuffer = await client.logistics.downloadShippingDocument(123456, {
-  orderList: [{ orderSn: "230101ABCDE123" }],
-});
-
-// 5. Tracking
-const tracking = await client.logistics.getTrackingNumber(
-  123456,
-  "230101ABCDE123"
-);
-console.log(`Tracking: ${tracking.tracking_number}`);
 ```
 
 ---
@@ -252,12 +161,7 @@ try {
   await client.shop.getShopInfo(123456);
 } catch (error) {
   if (error instanceof ShopeeApiError) {
-    console.error("Shopee API Error:");
-    console.error(`Code: ${error.errorCode}`); // e.g. "error_param"
-    console.error(`Message: ${error.message}`); // e.g. "Invalid shop id"
-    console.error(`Request ID: ${error.requestId}`);
-  } else {
-    console.error("Unknown Error:", error);
+    console.error(`Status: ${error.errorCode} - ${error.message}`);
   }
 }
 ```
@@ -266,24 +170,14 @@ try {
 
 ## 🛠️ Development
 
-To contribute or run tests locally:
-
 ```bash
-# Clone
 git clone https://github.com/thiiz/shopee-js.git
-
-# Install
 bun install
-
-# Test
 bun test
-
-# Run example server
-bun run examples/server.ts
 ```
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) for details.

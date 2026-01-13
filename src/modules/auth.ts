@@ -82,6 +82,8 @@ export class AuthModule {
     return this.tokenManager.getAccessToken(params);
   }
 
+
+
   /**
    * Refreshes the access token for a shop.
    * Normally you don't need to call this manually - it's done automatically.
