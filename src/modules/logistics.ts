@@ -4,15 +4,14 @@
  * Provides complete access to logistics/shipping APIs based on Shopee documentation.
  */
 
-import type { TokenManager } from '../auth/token-manager.js';
 import type { HttpClient } from '../http/client.js';
 import { API_PATHS } from '../http/endpoints.js';
 import type {
-    GetChannelListResponse,
-    GetShippingDocumentResultResponse,
-    GetShippingParameterResponse,
-    GetTrackingNumberResponse,
-    ShippingDocumentType
+  GetChannelListResponse,
+  GetShippingDocumentResultResponse,
+  GetShippingParameterResponse,
+  GetTrackingNumberResponse,
+  ShippingDocumentType
 } from '../types/index.js';
 
 export interface ShipOrderOptions {
@@ -44,11 +43,9 @@ export interface CreateShippingDocumentOptions {
  */
 export class LogisticsModule {
   private httpClient: HttpClient;
-  private tokenManager: TokenManager;
 
-  constructor(httpClient: HttpClient, tokenManager: TokenManager) {
+  constructor(httpClient: HttpClient) {
     this.httpClient = httpClient;
-    this.tokenManager = tokenManager;
   }
 
   /**
@@ -57,22 +54,15 @@ export class LogisticsModule {
    * 
    * @example
    * ```typescript
-   * const params = await client.logistics.getShippingParameter(123456, '2401010001');
-   * 
-   * if (params.info_needed.pickup) {
-   *   // Pickup available - choose address and time slot
-   *   const address = params.pickup.address_list[0];
-   *   const timeSlot = address.time_slot_list[0];
-   * }
+   * const params = await client.logistics.getShippingParameter(123456, 'ACCESS_TOKEN', '2401010001');
    * ```
    */
   async getShippingParameter(
     shopId: number,
+    accessToken: string,
     orderSn: string,
     packageNumber?: string
   ): Promise<GetShippingParameterResponse> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
     const params: Record<string, unknown> = {
       order_sn: orderSn,
     };
@@ -98,32 +88,16 @@ export class LogisticsModule {
    * @example
    * ```typescript
    * // Pickup method
-   * await client.logistics.shipOrder(123456, {
+   * await client.logistics.shipOrder(123456, 'ACCESS_TOKEN', {
    *   orderSn: '2401010001',
    *   pickup: {
    *     addressId: 2826,
    *     pickupTimeId: '1639472400'
    *   }
    * });
-   * 
-   * // Dropoff method
-   * await client.logistics.shipOrder(123456, {
-   *   orderSn: '2401010001',
-   *   dropoff: {}
-   * });
-   * 
-   * // Non-integrated method (own tracking number)
-   * await client.logistics.shipOrder(123456, {
-   *   orderSn: '2401010001',
-   *   nonIntegrated: {
-   *     trackingNumber: 'AK224200239740W'
-   *   }
-   * });
    * ```
    */
-  async shipOrder(shopId: number, options: ShipOrderOptions): Promise<void> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
+  async shipOrder(shopId: number, accessToken: string, options: ShipOrderOptions): Promise<void> {
     const body: Record<string, unknown> = {
       order_sn: options.orderSn,
     };
@@ -174,11 +148,10 @@ export class LogisticsModule {
 
   /**
    * Updates shipping info for pickup orders.
-   * Applicable to orders in RETRY_SHIP status.
    * 
    * @example
    * ```typescript
-   * await client.logistics.updateShippingOrder(123456, {
+   * await client.logistics.updateShippingOrder(123456, 'ACCESS_TOKEN', {
    *   orderSn: '2401010001',
    *   pickup: {
    *     addressId: 11178,
@@ -189,6 +162,7 @@ export class LogisticsModule {
    */
   async updateShippingOrder(
     shopId: number,
+    accessToken: string,
     options: {
       orderSn: string;
       packageNumber?: string;
@@ -198,8 +172,6 @@ export class LogisticsModule {
       };
     }
   ): Promise<void> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
     const body: Record<string, unknown> = {
       order_sn: options.orderSn,
     };
@@ -231,18 +203,16 @@ export class LogisticsModule {
    * 
    * @example
    * ```typescript
-   * const tracking = await client.logistics.getTrackingNumber(123456, '2401010001');
-   * console.log('Tracking:', tracking.tracking_number);
+   * const tracking = await client.logistics.getTrackingNumber(123456, 'ACCESS_TOKEN', '2401010001');
    * ```
    */
   async getTrackingNumber(
     shopId: number,
+    accessToken: string,
     orderSn: string,
     packageNumber?: string,
     responseOptionalFields?: string[]
   ): Promise<GetTrackingNumberResponse> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
     const params: Record<string, unknown> = {
       order_sn: orderSn,
     };
@@ -268,18 +238,8 @@ export class LogisticsModule {
 
   /**
    * Gets available logistics channels for a shop.
-   * 
-   * @example
-   * ```typescript
-   * const channels = await client.logistics.getChannelList(123456);
-   * for (const channel of channels.logistics_channel_list) {
-   *   console.log(channel.logistics_channel_name, channel.enabled);
-   * }
-   * ```
    */
-  async getChannelList(shopId: number): Promise<GetChannelListResponse> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
+  async getChannelList(shopId: number, accessToken: string): Promise<GetChannelListResponse> {
     return this.httpClient.get<GetChannelListResponse>(
       API_PATHS.GET_CHANNEL_LIST,
       undefined,
@@ -292,21 +252,13 @@ export class LogisticsModule {
   }
 
   /**
-   * Gets shipping document parameters (available document types).
-   * 
-   * @example
-   * ```typescript
-   * const docParams = await client.logistics.getShippingDocumentParameter(123456, [{
-   *   orderSn: '2401010001'
-   * }]);
-   * ```
+   * Gets shipping document parameters.
    */
   async getShippingDocumentParameter(
     shopId: number,
+    accessToken: string,
     orderList: Array<{ orderSn: string; packageNumber?: string }>
   ): Promise<unknown> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
     const body = {
       order_list: orderList.map(order => ({
         order_sn: order.orderSn,
@@ -326,22 +278,13 @@ export class LogisticsModule {
   }
 
   /**
-   * Creates a shipping document (airway bill) task.
-   * 
-   * @example
-   * ```typescript
-   * await client.logistics.createShippingDocument(123456, [{
-   *   orderSn: '2401010001',
-   *   documentType: 'NORMAL_AIR_WAYBILL'
-   * }]);
-   * ```
+   * Creates a shipping document task.
    */
   async createShippingDocument(
     shopId: number,
+    accessToken: string,
     orderList: CreateShippingDocumentOptions[]
   ): Promise<void> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
     const body = {
       order_list: orderList.map(order => ({
         order_sn: order.orderSn,
@@ -363,25 +306,12 @@ export class LogisticsModule {
 
   /**
    * Gets shipping document task result.
-   * Call this after createShippingDocument to check if the document is ready.
-   * 
-   * @example
-   * ```typescript
-   * const result = await client.logistics.getShippingDocumentResult(123456, [{
-   *   orderSn: '2401010001'
-   * }]);
-   * 
-   * if (result.result_list[0].status === 'READY') {
-   *   // Document is ready to download
-   * }
-   * ```
    */
   async getShippingDocumentResult(
     shopId: number,
+    accessToken: string,
     orderList: Array<{ orderSn: string; packageNumber?: string; documentType?: ShippingDocumentType }>
   ): Promise<GetShippingDocumentResultResponse> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
     const body = {
       order_list: orderList.map(order => ({
         order_sn: order.orderSn,
@@ -402,24 +332,13 @@ export class LogisticsModule {
   }
 
   /**
-   * Downloads the shipping document (airway bill).
-   * Returns the document as a Buffer.
-   * 
-   * @example
-   * ```typescript
-   * const document = await client.logistics.downloadShippingDocument(123456, [{
-   *   orderSn: '2401010001',
-   *   documentType: 'NORMAL_AIR_WAYBILL'
-   * }]);
-   * // document is a PDF, HTML, or ZIP file depending on settings
-   * ```
+   * Downloads the shipping document.
    */
   async downloadShippingDocument(
     shopId: number,
+    accessToken: string,
     orderList: Array<{ orderSn: string; packageNumber?: string; documentType?: ShippingDocumentType }>
   ): Promise<unknown> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
     const body = {
       order_list: orderList.map(order => ({
         order_sn: order.orderSn,
@@ -441,20 +360,12 @@ export class LogisticsModule {
 
   /**
    * Gets shipping document data for self-printing.
-   * 
-   * @example
-   * ```typescript
-   * const data = await client.logistics.getShippingDocumentDataInfo(123456, [{
-   *   orderSn: '2401010001'
-   * }]);
-   * ```
    */
   async getShippingDocumentDataInfo(
     shopId: number,
+    accessToken: string,
     orderList: Array<{ orderSn: string; packageNumber?: string }>
   ): Promise<unknown> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
     const body = {
       order_list: orderList.map(order => ({
         order_sn: order.orderSn,
@@ -475,19 +386,13 @@ export class LogisticsModule {
 
   /**
    * Gets tracking info for an order.
-   * 
-   * @example
-   * ```typescript
-   * const trackingInfo = await client.logistics.getTrackingInfo(123456, '2401010001');
-   * ```
    */
   async getTrackingInfo(
     shopId: number,
+    accessToken: string,
     orderSn: string,
     packageNumber?: string
   ): Promise<unknown> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
     const params: Record<string, unknown> = {
       order_sn: orderSn,
     };
@@ -509,21 +414,12 @@ export class LogisticsModule {
 
   /**
    * Batch get tracking numbers for multiple orders.
-   * 
-   * @example
-   * ```typescript
-   * const tracking = await client.logistics.batchGetTrackingNumber(123456, [
-   *   { orderSn: '2401010001' },
-   *   { orderSn: '2401010002' }
-   * ]);
-   * ```
    */
   async batchGetTrackingNumber(
     shopId: number,
+    accessToken: string,
     orderList: Array<{ orderSn: string; packageNumber?: string }>
   ): Promise<unknown> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
     const body = {
       order_list: orderList.map(order => ({
         order_sn: order.orderSn,

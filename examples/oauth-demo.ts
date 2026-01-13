@@ -48,17 +48,17 @@ async function main() {
   console.log('Step 4: Make API calls');
   console.log(`
 // Get shop info
-const shopInfo = await client.shop.getShopInfo(shopId);
+const shopInfo = await client.shop.getShopInfo(shopId, accessToken);
 
 // List orders
-const orders = await client.order.listOrders(shopId, {
+const orders = await client.order.listOrders(shopId, accessToken, {
   timeRangeField: 'create_time',
   timeFrom: Math.floor(Date.now() / 1000) - 86400,
   timeTo: Math.floor(Date.now() / 1000),
 });
 
 // Get products
-const products = await client.product.listItems(shopId, {
+const products = await client.product.listItems(shopId, accessToken, {
   pageSize: 50,
   itemStatus: 'NORMAL',
 });

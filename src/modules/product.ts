@@ -4,10 +4,14 @@
  * Provides access to product-related APIs.
  */
 
-import type { TokenManager } from '../auth/token-manager.js';
 import type { HttpClient } from '../http/client.js';
 import { API_PATHS } from '../http/endpoints.js';
-import type { CategoryInfo, GetCategoryResponse } from '../types/index.js';
+import type {
+  CategoryInfo,
+  GetCategoryResponse,
+  GetItemBaseInfoResponse,
+  ItemBaseInfo
+} from '../types/index.js';
 
 export interface GetCategoryOptions {
   /** Language for category names */
@@ -15,12 +19,12 @@ export interface GetCategoryOptions {
 }
 
 export interface ItemListOptions {
+  /** Filter by item status. Multiple statuses can be passed as an array. */
+  itemStatus: Array<'NORMAL' | 'BANNED' | 'DELETED' | 'UNLIST'>;
   /** Offset for pagination */
   offset?: number;
   /** Number of items per page (max 100) */
   pageSize?: number;
-  /** Filter by item status */
-  itemStatus?: 'NORMAL' | 'BANNED' | 'DELETED' | 'UNLIST';
   /** Update time range start */
   updateTimeFrom?: number;
   /** Update time range end */
@@ -43,11 +47,9 @@ export interface ItemListResult {
  */
 export class ProductModule {
   private httpClient: HttpClient;
-  private tokenManager: TokenManager;
 
-  constructor(httpClient: HttpClient, tokenManager: TokenManager) {
+  constructor(httpClient: HttpClient) {
     this.httpClient = httpClient;
-    this.tokenManager = tokenManager;
   }
 
   /**
@@ -55,21 +57,16 @@ export class ProductModule {
    * 
    * @example
    * ```typescript
-   * const categories = await client.product.getCategories(123456, {
+   * const categories = await client.product.getCategories(123456, 'ACCESS_TOKEN', {
    *   language: 'en'
    * });
-   * 
-   * for (const category of categories) {
-   *   console.log(category.category_id, category.display_category_name);
-   * }
    * ```
    */
   async getCategories(
     shopId: number,
+    accessToken: string,
     options?: GetCategoryOptions
   ): Promise<CategoryInfo[]> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
     const params: Record<string, unknown> = {};
     if (options?.language) {
       params.language = options.language;
@@ -93,32 +90,24 @@ export class ProductModule {
    * 
    * @example
    * ```typescript
-   * const result = await client.product.listItems(123456, {
+   * const result = await client.product.listItems(123456, 'ACCESS_TOKEN', {
+   *   itemStatus: ['NORMAL'],
    *   offset: 0,
-   *   pageSize: 50,
-   *   itemStatus: 'NORMAL'
+   *   pageSize: 50
    * });
-   * 
-   * for (const item of result.items) {
-   *   console.log(item.itemId);
-   * }
    * ```
    */
-  async listItems(shopId: number, options?: ItemListOptions): Promise<ItemListResult> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
+  async listItems(shopId: number, accessToken: string, options: ItemListOptions): Promise<ItemListResult> {
     const params: Record<string, unknown> = {
-      offset: options?.offset ?? 0,
-      page_size: options?.pageSize ?? 50,
+      item_status: options.itemStatus,
+      offset: options.offset ?? 0,
+      page_size: options.pageSize ?? 50,
     };
 
-    if (options?.itemStatus) {
-      params.item_status = options.itemStatus;
-    }
-    if (options?.updateTimeFrom) {
+    if (options.updateTimeFrom) {
       params.update_time_from = options.updateTimeFrom;
     }
-    if (options?.updateTimeTo) {
+    if (options.updateTimeTo) {
       params.update_time_to = options.updateTimeTo;
     }
 
@@ -158,21 +147,20 @@ export class ProductModule {
    * 
    * @example
    * ```typescript
-   * const items = await client.product.getItemBaseInfo(123456, {
+   * const items = await client.product.getItemBaseInfo(123456, 'ACCESS_TOKEN', {
    *   itemIdList: [100001, 100002]
    * });
    * ```
    */
   async getItemBaseInfo(
     shopId: number,
+    accessToken: string,
     options: {
       itemIdList: number[];
       needTaxInfo?: boolean;
       needComplaintPolicy?: boolean;
     }
-  ): Promise<unknown[]> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
+  ): Promise<ItemBaseInfo[]> {
     const params: Record<string, unknown> = {
       item_id_list: options.itemIdList.join(','),
     };
@@ -184,7 +172,7 @@ export class ProductModule {
       params.need_complaint_policy = options.needComplaintPolicy;
     }
 
-    const response = await this.httpClient.get<{ item_list: unknown[] }>(
+    const response = await this.httpClient.get<GetItemBaseInfoResponse>(
       API_PATHS.GET_ITEM_BASE_INFO,
       params,
       {
@@ -203,20 +191,23 @@ export class ProductModule {
    * 
    * @example
    * ```typescript
-   * for await (const item of client.product.iterateItems(123456)) {
+   * for await (const item of client.product.iterateItems(123456, 'ACCESS_TOKEN', {
+   *   itemStatus: ['NORMAL']
+   * })) {
    *   console.log(item.itemId);
    * }
    * ```
    */
   async *iterateItems(
     shopId: number,
-    options?: Omit<ItemListOptions, 'offset'>
+    accessToken: string,
+    options: Omit<ItemListOptions, 'offset'>
   ): AsyncGenerator<{ itemId: number; itemStatus: string; updateTime: number }> {
     let offset = 0;
     let hasNextPage = true;
 
     while (hasNextPage) {
-      const result = await this.listItems(shopId, {
+      const result = await this.listItems(shopId, accessToken, {
         ...options,
         offset,
       });

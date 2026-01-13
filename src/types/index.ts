@@ -216,6 +216,113 @@ export type ItemStatus =
   | 'SELLER_DELETE'
   | 'SHOPEE_DELETE';
 
+/**
+ * Item attribute information
+ */
+export interface ItemAttribute {
+  attribute_id: number;
+  original_attribute_name: string;
+  is_mandatory: boolean;
+  attribute_value_list: Array<{
+    value_id: number;
+    original_value_name: string;
+    value_unit: string;
+  }>;
+}
+
+/**
+ * Item price information
+ */
+export interface ItemPriceInfo {
+  currency: string;
+  original_price: number;
+  current_price: number;
+  init_price?: number;
+}
+
+/**
+ * Item stock information
+ */
+export interface ItemStockInfo {
+  stock_type: number;
+  current_stock: number;
+  normal_stock: number;
+  reserved_stock?: number;
+}
+
+/**
+ * Item logistic information
+ */
+export interface ItemLogisticInfo {
+  logistic_id: number;
+  logistic_name: string;
+  enabled: boolean;
+  shipping_fee?: number;
+  is_free_shipping?: boolean;
+}
+
+/**
+ * Item image information
+ */
+export interface ItemImage {
+  image_id_list?: string[];
+  image_url_list?: string[];
+}
+
+/**
+ * Item video information
+ */
+export interface ItemVideoInfo {
+  video_url: string;
+  thumbnail_url: string;
+  duration: number;
+}
+
+/**
+ * Basic information for an item
+ */
+export interface ItemBaseInfo {
+  item_id: number;
+  category_id: number;
+  item_name: string;
+  description: string;
+  item_sku: string;
+  create_time: number;
+  update_time: number;
+  attribute_list?: ItemAttribute[];
+  price_info?: ItemPriceInfo[];
+  stock_info?: ItemStockInfo[];
+  image: ItemImage;
+  weight: string;
+  dimension: {
+    package_length: number;
+    package_width: number;
+    package_height: number;
+  };
+  logistic_info: ItemLogisticInfo[];
+  pre_order: {
+    is_pre_order: boolean;
+    days_to_ship: number;
+  };
+  condition: string;
+  item_status: ItemStatus;
+  has_model: boolean;
+  promotion_id: number;
+  brand?: {
+    brand_id: number;
+    original_brand_name: string;
+  };
+  tax_info?: any;
+  complaint_policy?: any;
+}
+
+/**
+ * Response for get_item_base_info
+ */
+export interface GetItemBaseInfoResponse {
+  item_list: ItemBaseInfo[];
+}
+
 // ============================================
 // Order Types
 // ============================================

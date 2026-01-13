@@ -1,12 +1,11 @@
 import { beforeEach, describe, expect, it, jest } from 'bun:test';
-import { TokenManager } from '../src/auth/token-manager';
 import { HttpClient } from '../src/http/client';
 import { LogisticsModule } from '../src/modules/logistics';
 
 describe('LogisticsModule', () => {
   let logistics: LogisticsModule;
   let mockHttpClient: HttpClient;
-  let mockTokenManager: TokenManager;
+  const testAccessToken = 'test-access-token';
 
   beforeEach(() => {
     mockHttpClient = {
@@ -14,17 +13,12 @@ describe('LogisticsModule', () => {
       post: jest.fn(),
     } as unknown as HttpClient;
 
-    mockTokenManager = {
-      getShopAccessToken: jest.fn().mockResolvedValue('test-access-token'),
-    } as unknown as TokenManager;
-
-    logistics = new LogisticsModule(mockHttpClient, mockTokenManager);
+    logistics = new LogisticsModule(mockHttpClient);
   });
 
   it('getShippingParameter > should call API with correct parameters', async () => {
-    await logistics.getShippingParameter(123456, 'order-sn-1', 'pkg-1');
+    await logistics.getShippingParameter(123456, testAccessToken, 'order-sn-1', 'pkg-1');
 
-    expect(mockTokenManager.getShopAccessToken).toHaveBeenCalledWith(123456);
     expect(mockHttpClient.get).toHaveBeenCalledWith(
       expect.stringContaining('get_shipping_parameter'),
       {
@@ -33,13 +27,13 @@ describe('LogisticsModule', () => {
       },
       expect.objectContaining({
         shopId: 123456,
-        accessToken: 'test-access-token',
+        accessToken: testAccessToken,
       })
     );
   });
 
   it('shipOrder > should call API with pickup parameters', async () => {
-    await logistics.shipOrder(123456, {
+    await logistics.shipOrder(123456, testAccessToken, {
       orderSn: 'order-sn-1',
       pickup: {
         addressId: 1001,
@@ -58,12 +52,13 @@ describe('LogisticsModule', () => {
       },
       expect.objectContaining({
         shopId: 123456,
+        accessToken: testAccessToken,
       })
     );
   });
 
   it('getTrackingNumber > should call API with optional fields', async () => {
-    await logistics.getTrackingNumber(123456, 'order-sn-1', undefined, ['plp_number']);
+    await logistics.getTrackingNumber(123456, testAccessToken, 'order-sn-1', undefined, ['plp_number']);
 
     expect(mockHttpClient.get).toHaveBeenCalledWith(
       expect.stringContaining('get_tracking_number'),
@@ -71,12 +66,14 @@ describe('LogisticsModule', () => {
         order_sn: 'order-sn-1',
         response_optional_fields: 'plp_number',
       }),
-      expect.anything()
+      expect.objectContaining({
+        accessToken: testAccessToken,
+      })
     );
   });
 
   it('createShippingDocument > should format request correctly', async () => {
-    await logistics.createShippingDocument(123456, [
+    await logistics.createShippingDocument(123456, testAccessToken, [
       { orderSn: 'sn1', documentType: 'NORMAL_AIR_WAYBILL' },
     ]);
 
@@ -91,7 +88,10 @@ describe('LogisticsModule', () => {
           },
         ],
       },
-      expect.anything()
+      expect.objectContaining({
+        accessToken: testAccessToken,
+      })
     );
   });
 });
+

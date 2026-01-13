@@ -4,7 +4,6 @@
  * Provides access to shop-related APIs.
  */
 
-import type { TokenManager } from '../auth/token-manager.js';
 import type { HttpClient } from '../http/client.js';
 import { API_PATHS } from '../http/endpoints.js';
 import type { GetShopInfoResponse } from '../types/index.js';
@@ -14,11 +13,8 @@ import type { GetShopInfoResponse } from '../types/index.js';
  */
 export class ShopModule {
   private httpClient: HttpClient;
-  private tokenManager: TokenManager;
-
-  constructor(httpClient: HttpClient, tokenManager: TokenManager) {
+  constructor(httpClient: HttpClient) {
     this.httpClient = httpClient;
-    this.tokenManager = tokenManager;
   }
 
   /**
@@ -26,13 +22,11 @@ export class ShopModule {
    * 
    * @example
    * ```typescript
-   * const shopInfo = await client.shop.getShopInfo(123456);
+   * const shopInfo = await client.shop.getShopInfo(123456, 'ACCESS_TOKEN');
    * console.log(shopInfo.shop_name, shopInfo.region);
    * ```
    */
-  async getShopInfo(shopId: number): Promise<GetShopInfoResponse> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
+  async getShopInfo(shopId: number, accessToken: string): Promise<GetShopInfoResponse> {
     return this.httpClient.get<GetShopInfoResponse>(
       API_PATHS.GET_SHOP_INFO,
       undefined,
@@ -49,7 +43,7 @@ export class ShopModule {
    * 
    * @example
    * ```typescript
-   * await client.shop.updateProfile(123456, {
+   * await client.shop.updateProfile(123456, 'ACCESS_TOKEN', {
    *   shopName: 'My Awesome Shop',
    *   description: 'Welcome to my shop!'
    * });
@@ -57,14 +51,13 @@ export class ShopModule {
    */
   async updateProfile(
     shopId: number,
+    accessToken: string,
     params: {
       shopName?: string;
       shopLogo?: string;
       description?: string;
     }
   ): Promise<void> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
     const body: Record<string, unknown> = {};
     if (params.shopName) body.shop_name = params.shopName;
     if (params.shopLogo) body.shop_logo = params.shopLogo;

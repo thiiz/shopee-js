@@ -34,12 +34,13 @@ import type { ShopeeConfig } from './types/index.js';
  *   redirectUrl: 'https://your-site.com/callback'
  * });
  * 
- * // After OAuth callback
- * await client.auth.getAccessToken({ code: 'auth-code', shopId: 123 });
+  * // After OAuth callback
+ * const tokens = await client.auth.getAccessToken({ code: 'auth-code', shopId: 123 });
+ * const accessToken = tokens.access_token;
  * 
  * // Make API calls
- * const shopInfo = await client.shop.getShopInfo(123);
- * const orders = await client.order.listOrders(123, {
+ * const shopInfo = await client.shop.getShopInfo(123, accessToken);
+ * const orders = await client.order.listOrders(123, accessToken, {
  *   timeRangeField: 'create_time',
  *   timeFrom: 1609459200,
  *   timeTo: 1609545600
@@ -78,10 +79,10 @@ export class ShopeeClient {
 
     // Initialize modules
     this.auth = new AuthModule(this.httpClient, this.tokenManager);
-    this.shop = new ShopModule(this.httpClient, this.tokenManager);
-    this.order = new OrderModule(this.httpClient, this.tokenManager);
-    this.product = new ProductModule(this.httpClient, this.tokenManager);
-    this.logistics = new LogisticsModule(this.httpClient, this.tokenManager);
+    this.shop = new ShopModule(this.httpClient);
+    this.order = new OrderModule(this.httpClient);
+    this.product = new ProductModule(this.httpClient);
+    this.logistics = new LogisticsModule(this.httpClient);
   }
 
   /**

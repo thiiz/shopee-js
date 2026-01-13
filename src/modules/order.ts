@@ -4,7 +4,6 @@
  * Provides complete access to order-related APIs based on Shopee documentation.
  */
 
-import type { TokenManager } from '../auth/token-manager.js';
 import type { HttpClient } from '../http/client.js';
 import { API_PATHS } from '../http/endpoints.js';
 import type {
@@ -86,11 +85,8 @@ export interface SplitOrderItem {
  */
 export class OrderModule {
   private httpClient: HttpClient;
-  private tokenManager: TokenManager;
-
-  constructor(httpClient: HttpClient, tokenManager: TokenManager) {
+  constructor(httpClient: HttpClient) {
     this.httpClient = httpClient;
-    this.tokenManager = tokenManager;
   }
 
   /**
@@ -98,7 +94,7 @@ export class OrderModule {
    * 
    * @example
    * ```typescript
-   * const result = await client.order.listOrders(123456, {
+   * const result = await client.order.listOrders(123456, 'ACCESS_TOKEN', {
    *   timeRangeField: 'create_time',
    *   timeFrom: 1609459200,
    *   timeTo: 1609545600,
@@ -106,9 +102,7 @@ export class OrderModule {
    * });
    * ```
    */
-  async listOrders(shopId: number, options: ListOrdersOptions): Promise<OrderListResult> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
-
+  async listOrders(shopId: number, accessToken: string, options: ListOrdersOptions): Promise<OrderListResult> {
     const params: Record<string, unknown> = {
       time_range_field: options.timeRangeField,
       time_from: options.timeFrom,
@@ -151,7 +145,7 @@ export class OrderModule {
    * 
    * @example
    * ```typescript
-   * const details = await client.order.getOrderDetails(123456, {
+   * const details = await client.order.getOrderDetails(123456, 'ACCESS_TOKEN', {
    *   orderSnList: ['2401010001', '2401010002'],
    *   responseOptionalFields: ['buyer_user_id', 'buyer_username', 'item_list']
    * });
@@ -159,12 +153,12 @@ export class OrderModule {
    */
   async getOrderDetails(
     shopId: number,
+    accessToken: string,
     options: {
       orderSnList: string[];
       responseOptionalFields?: string[];
     }
   ): Promise<OrderDetail[]> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
 
     const params: Record<string, unknown> = {
       order_sn_list: options.orderSnList.join(','),
@@ -192,7 +186,7 @@ export class OrderModule {
    * 
    * @example
    * ```typescript
-   * await client.order.cancelOrder(123456, {
+   * await client.order.cancelOrder(123456, 'ACCESS_TOKEN', {
    *   orderSn: '2401010001',
    *   cancelReason: 'OUT_OF_STOCK',
    *   itemList: [{ item_id: 100001, model_id: 0 }]
@@ -201,6 +195,7 @@ export class OrderModule {
    */
   async cancelOrder(
     shopId: number,
+    accessToken: string,
     options: {
       orderSn: string;
       cancelReason: OrderCancelReason;
@@ -210,7 +205,6 @@ export class OrderModule {
       }>;
     }
   ): Promise<void> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
 
     const body: Record<string, unknown> = {
       order_sn: options.orderSn,
@@ -237,7 +231,7 @@ export class OrderModule {
    * 
    * @example
    * ```typescript
-   * await client.order.handleBuyerCancellation(123456, {
+   * await client.order.handleBuyerCancellation(123456, 'ACCESS_TOKEN', {
    *   orderSn: '2401010001',
    *   operation: 'ACCEPT' // or 'REJECT'
    * });
@@ -245,12 +239,12 @@ export class OrderModule {
    */
   async handleBuyerCancellation(
     shopId: number,
+    accessToken: string,
     options: {
       orderSn: string;
       operation: 'ACCEPT' | 'REJECT';
     }
   ): Promise<void> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
 
     const body = {
       order_sn: options.orderSn,
@@ -274,7 +268,7 @@ export class OrderModule {
    * 
    * @example
    * ```typescript
-   * await client.order.splitOrder(123456, {
+   * await client.order.splitOrder(123456, 'ACCESS_TOKEN', {
    *   orderSn: '2204215JYEEFW0',
    *   packageList: [
    *     {
@@ -293,6 +287,7 @@ export class OrderModule {
    */
   async splitOrder(
     shopId: number,
+    accessToken: string,
     options: {
       orderSn: string;
       packageList: Array<{
@@ -300,7 +295,6 @@ export class OrderModule {
       }>;
     }
   ): Promise<void> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
 
     const body = {
       order_sn: options.orderSn,
@@ -331,11 +325,10 @@ export class OrderModule {
    * 
    * @example
    * ```typescript
-   * await client.order.unsplitOrder(123456, '2204215JYEEFW0');
+   * await client.order.unsplitOrder(123456, 'ACCESS_TOKEN', '2204215JYEEFW0');
    * ```
    */
-  async unsplitOrder(shopId: number, orderSn: string): Promise<void> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
+  async unsplitOrder(shopId: number, accessToken: string, orderSn: string): Promise<void> {
 
     const body = {
       order_sn: orderSn,
@@ -358,7 +351,7 @@ export class OrderModule {
    * 
    * @example
    * ```typescript
-   * const result = await client.order.searchPackages(123456, {
+   * const result = await client.order.searchPackages(123456, 'ACCESS_TOKEN', {
    *   packageStatus: 2, // ToProcess
    *   pageSize: 50,
    *   sortBy: 'create_time',
@@ -368,9 +361,9 @@ export class OrderModule {
    */
   async searchPackages(
     shopId: number,
+    accessToken: string,
     options: SearchPackageOptions
   ): Promise<PackageListResult> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
 
     const params: Record<string, unknown> = {
       package_status: options.packageStatus,
@@ -421,7 +414,7 @@ export class OrderModule {
    * 
    * @example
    * ```typescript
-   * const packageDetail = await client.order.getPackageDetail(123456, {
+   * const packageDetail = await client.order.getPackageDetail(123456, 'ACCESS_TOKEN', {
    *   orderSn: '2204215JYEEFW0',
    *   packageNumber: 'PKG001'
    * });
@@ -429,12 +422,12 @@ export class OrderModule {
    */
   async getPackageDetail(
     shopId: number,
+    accessToken: string,
     options: {
       orderSn: string;
       packageNumber?: string;
     }
   ): Promise<unknown> {
-    const accessToken = await this.tokenManager.getShopAccessToken(shopId);
 
     const params: Record<string, unknown> = {
       order_sn: options.orderSn,
@@ -461,7 +454,7 @@ export class OrderModule {
    * 
    * @example
    * ```typescript
-   * for await (const order of client.order.iterateOrders(123456, {
+   * for await (const order of client.order.iterateOrders(123456, 'ACCESS_TOKEN', {
    *   timeRangeField: 'create_time',
    *   timeFrom: 1609459200,
    *   timeTo: 1609545600
@@ -472,13 +465,14 @@ export class OrderModule {
    */
   async *iterateOrders(
     shopId: number,
+    accessToken: string,
     options: Omit<ListOrdersOptions, 'cursor'>
   ): AsyncGenerator<{ orderSn: string; orderStatus: OrderStatus }> {
     let cursor: string | undefined;
     let hasMore = true;
 
     while (hasMore) {
-      const result = await this.listOrders(shopId, {
+      const result = await this.listOrders(shopId, accessToken, {
         ...options,
         cursor,
       });
@@ -498,7 +492,7 @@ export class OrderModule {
    * 
    * @example
    * ```typescript
-   * for await (const pkg of client.order.iteratePackages(123456, {
+   * for await (const pkg of client.order.iteratePackages(123456, 'ACCESS_TOKEN', {
    *   packageStatus: 2 // ToProcess
    * })) {
    *   console.log(pkg.orderSn, pkg.packageNumber);
@@ -507,13 +501,14 @@ export class OrderModule {
    */
   async *iteratePackages(
     shopId: number,
+    accessToken: string,
     options: Omit<SearchPackageOptions, 'cursor'>
   ): AsyncGenerator<PackageListResult['packages'][number]> {
     let cursor: string | undefined;
     let hasMore = true;
 
     while (hasMore) {
-      const result = await this.searchPackages(shopId, {
+      const result = await this.searchPackages(shopId, accessToken, {
         ...options,
         cursor,
       });

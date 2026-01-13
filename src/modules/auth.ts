@@ -86,52 +86,21 @@ export class AuthModule {
 
   /**
    * Refreshes the access token for a shop.
-   * Normally you don't need to call this manually - it's done automatically.
+   * 
+   * @param shopId - The shop ID
+   * @param refreshToken - The current refresh token from your database
    */
-  async refreshShopToken(shopId: number) {
-    return this.tokenManager.refreshShopToken(shopId);
+  async refreshShopToken(shopId: number, refreshToken: string) {
+    return this.tokenManager.refreshShopToken(shopId, refreshToken);
   }
 
   /**
    * Refreshes the access token for a merchant.
-   * Normally you don't need to call this manually - it's done automatically.
+   * 
+   * @param merchantId - The merchant ID
+   * @param refreshToken - The current refresh token from your database
    */
-  async refreshMerchantToken(merchantId: number) {
-    return this.tokenManager.refreshMerchantToken(merchantId);
-  }
-
-  /**
-   * Sets token data for a shop.
-   * Use this to restore tokens from your database/storage.
-   */
-  setShopToken(shopId: number, accessToken: string, refreshToken: string, expiresAt: number) {
-    this.tokenManager.setShopToken({
-      shopId,
-      accessToken,
-      refreshToken,
-      expireIn: Math.floor((expiresAt - Date.now()) / 1000),
-      expiresAt,
-    });
-  }
-
-  /**
-   * Gets stored token data for persistence.
-   */
-  getShopTokenData(shopId: number) {
-    return this.tokenManager.getShopTokenData(shopId);
-  }
-
-  /**
-   * Gets all authorized shop IDs.
-   */
-  getAuthorizedShopIds(): number[] {
-    return this.tokenManager.getAuthorizedShopIds();
-  }
-
-  /**
-   * Checks if a shop is authorized.
-   */
-  isShopAuthorized(shopId: number): boolean {
-    return this.tokenManager.hasShopToken(shopId);
+  async refreshMerchantToken(merchantId: number, refreshToken: string) {
+    return this.tokenManager.refreshMerchantToken(merchantId, refreshToken);
   }
 }
