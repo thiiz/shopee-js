@@ -1,75 +1,85 @@
 # Shopee-JS SDK
 
-O SDK TypeScript/JavaScript mais completo e robusto para a [Shopee Open Platform API v2](https://open.shopee.com/).
+The most complete and robust TypeScript/JavaScript SDK for the [Shopee Open Platform API v2](https://open.shopee.com/).
 
 [![npm version](https://img.shields.io/npm/v/shopee-js.svg)](https://www.npmjs.com/package/shopee-js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🌟 Destaques
+## 🌟 Highlights
 
-- 🔐 **Fluxo OAuth Completo**: Geração de links de autorização, troca de código por tokens e renovação automática de tokens (refresh token).
-- 📦 **Tipagem Forte (TypeScript)**: Todas as requisições e respostas são tipadas, garantindo autocompletar e segurança em tempo de compilação.
-- 🌍 **Suporte Multi-Região**: Configurado para trabalhar com Singapura (`sg`), China (`cn`) e Brasil (`br`).
-- 🔄 **Paginação Automática**: Iteradores assíncronos (`for await`) para percorrer grandes listas de pedidos ou produtos sem lidar com cursores manualmente.
-- 🛡️ **Tratamento de Erros**: Classes de erro dedicadas com códigos e mensagens claras da API.
-- 🚀 **Zero Dependências de Runtime**: Construído sobre `fetch` e `Web Crypto API`, tornando-o leve e compatível com Edge Runtimes (Cloudflare Workers, Vercel Edge, Bun, Deno).
+- 🔐 **Complete OAuth Flow**: Authorization link generation, code-to-token comparison, and automatic token renewal (refresh token) with persistence support.
+- 📦 **Strong Typing (TypeScript)**: All requests and responses are fully typed, ensuring autocomplete and compile-time safety.
+- 🌍 **Multi-Region Support**: Configured to work with Singapore (`sg`), China (`cn`), and Brazil (`br`).
+- 🔄 **Automatic Pagination**: Async iterators (`for await`) to traverse large lists of orders or products without manually handling cursors.
+- 🛡️ **Error Handling**: Dedicated error classes with clear API codes and messages.
+- 🚀 **Zero Runtime Dependencies**: Built on top of `fetch` and `Web Crypto API`, making it lightweight and compatible with Edge Runtimes (Cloudflare Workers, Vercel Edge, Bun, Deno).
 
 ---
 
-## 📦 Instalação
+## 📦 Installation
 
 ```bash
-# Usando Bun (Recomendado)
+# Using Bun (Recommended)
 bun add shopee-js
 
-# Usando npm
+# Using npm
 npm install shopee-js
 
-# Usando pnpm
+# Using pnpm
 pnpm add shopee-js
 
-# Usando yarn
+# Using yarn
 yarn add shopee-js
 ```
 
 ---
 
-## 🚀 Começando Rápido
+## 🚀 Quick Start
 
-### 1. Inicialize o Cliente
+### 1. Initialize Client
 
 ```typescript
 import { ShopeeClient } from "shopee-js";
 
 const client = new ShopeeClient({
-  partnerId: 123456, // Seu Partner ID (do Portal Shopee Open Platform)
-  partnerKey: "your-key", // Sua Partner Key (Secret)
-  environment: "sandbox", // 'sandbox' para testes ou 'production' para produção
-  region: "br", // 'sg', 'cn' ou 'br' (Brasil)
-  debug: true, // Opcional: Loga as requisições no console
+  partnerId: 123456, // Your Partner ID
+  partnerKey: "your-key", // Your Partner Key (Secret)
+  environment: "sandbox", // 'sandbox' or 'production'
+  region: "br", // 'sg', 'cn' or 'br'
+
+  // Optional: Automatic Token Persistence Callback
+  onTokenRefresh: async (tokenData) => {
+    console.log("Token Refreshed for Shop:", tokenData.shopId);
+    // Save new token to your database
+    await db.shops.update(tokenData.shopId, {
+      accessToken: tokenData.accessToken,
+      refreshToken: tokenData.refreshToken,
+      expiresAt: tokenData.expiresAt,
+    });
+  },
 });
 ```
 
-### 2. Autenticação (OAuth 2.0)
+### 2. Authentication (OAuth 2.0)
 
-Para acessar os dados de uma loja, você precisa que o vendedor autorize seu aplicativo.
+To access a shop's data, the seller must authorize your application.
 
-#### Passo A: Gerar Link de Autorização
+#### Step A: Generate Authorization Link
 
 ```typescript
 const authLink = await client.auth.generateAuthLink({
-  redirectUrl: "https://seu-site.com/callback", // URL configurada no seu App no portal da Shopee
+  redirectUrl: "https://your-site.com/callback",
 });
 
-console.log("Envie o vendedor para este link:", authLink);
+console.log("Send the seller to this link:", authLink);
 ```
 
-#### Passo B: Trocar Código por Tokens
+#### Step B: Exchange Code for Tokens
 
-Quando o vendedor autoriza, ele é redirecionado para sua `redirectUrl` com um `code` e `shop_id`.
+When the seller authorizes, they are redirected to your `redirectUrl` with a `code` and `shop_id`.
 
 ```typescript
-// Exemplo em um handler de rota (Next.js/Express)
+// Example in a route handler
 const code = req.query.code;
 const shopId = Number(req.query.shop_id);
 
@@ -81,7 +91,7 @@ const tokenResponse = await client.auth.getAccessToken({
 console.log("Access Token:", tokenResponse.access_token);
 console.log("Refresh Token:", tokenResponse.refresh_token);
 
-// IMPORTANTE: Salve esses tokens no seu banco de dados associados ao shopId!
+// IMPORTANT: Save these initial tokens to your database!
 await db.shops.update(shopId, {
   accessToken: tokenResponse.access_token,
   refreshToken: tokenResponse.refresh_token,
@@ -89,12 +99,14 @@ await db.shops.update(shopId, {
 });
 ```
 
-### 3. Persistência de Tokens (Importante!)
+### 3. Token Persistence (New!)
 
-O SDK gerencia tokens em memória, mas para produção você deve restaurá-los do seu banco de dados ao iniciar o cliente.
+The SDK manages tokens in memory for performance, but you simply need to load them once when your app starts.
+
+Using the `onTokenRefresh` callback (configured in step 1), the SDK will **automatically** call your database update function whenever it refreshes a token internally. You no longer need to setup cron jobs or manual storage logic.
 
 ```typescript
-// Ao carregar sua aplicação ou processar uma requisição para uma loja específica
+// When loading your application or processing a request:
 const shopData = await db.shops.find(123456);
 
 if (shopData) {
@@ -102,113 +114,101 @@ if (shopData) {
     shopData.shopId,
     shopData.accessToken,
     shopData.refreshToken,
-    shopData.expiresAt // Timestamp em milissegundos
+    shopData.expiresAt // Timestamp in milliseconds
   );
 }
 
-// O SDK atualizará o token automaticamente se ele estiver expirado,
-// mas você deve ouvir eventos ou verificar periodicamente para salvar o novo token no DB.
+// Result: The SDK will use these tokens, auto-refresh when needed,
+// and call your 'onTokenRefresh' callback to keep DB in sync.
 ```
 
 ---
 
-## 📚 Módulos da API
+## 📚 API Modules
 
-### 🛒 Shop (Loja)
+### 🛒 Shop
 
-Gerencie informações básicas da loja e configurações.
+Manage basic shop information and profile.
 
 ```typescript
-// Obter informações da loja
+// Get Shop Info
 const shopInfo = await client.shop.getShopInfo(123456);
-console.log(`Loja: ${shopInfo.shop_name} (Região: ${shopInfo.region})`);
+console.log(`Shop: ${shopInfo.shop_name} (Region: ${shopInfo.region})`);
 
-// Atualizar perfil
+// Update Profile
 await client.shop.updateProfile(123456, {
-  shopName: "Minha Loja Inccrível",
-  description: "A melhor loja do Brasil!",
+  shopName: "My Awesome Shop",
+  description: "Best shop in town!",
 });
 ```
 
-### 📦 Product (Produtos)
+### 📦 Product
 
-Liste, busque e gerencie produtos.
+List, search and manage products.
 
 ```typescript
-// Listar produtos (paginação manual)
+// List items (Manual Pagination)
 const result = await client.product.listItems(123456, {
   pageSize: 50,
-  itemStatus: "NORMAL", // 'NORMAL', 'BANNED', 'DELETED', 'UNLIST'
+  itemStatus: "NORMAL",
 });
 
-// Iterar sobre TODOS os produtos (Paginação Automática!)
+// Iterate all items (Auto Pagination!)
 for await (const item of client.product.iterateItems(123456, {
   itemStatus: "NORMAL",
 })) {
-  console.log(`Produto ID: ${item.itemId} - Status: ${item.itemStatus}`);
+  console.log(`Product ID: ${item.itemId} - Status: ${item.itemStatus}`);
 }
 
-// Obter detalhes de produtos específicos
+// Get Item Details
 const details = await client.product.getItemBaseInfo(123456, {
   itemIdList: [10001, 10002],
 });
-
-// Listar categorias
-const categories = await client.product.getCategories(123456, {
-  language: "pt",
-});
 ```
 
-### 📝 Order (Pedidos)
+### 📝 Order
 
-Gerencie pedidos, cancelamentos e devoluções.
+Manage orders, cancellations and returns.
 
 ```typescript
-// Listar pedidos recentes (últimas 24h)
+// List recent orders
 const now = Math.floor(Date.now() / 1000);
 const orders = await client.order.listOrders(123456, {
   timeRangeField: "create_time",
-  timeFrom: now - 86400,
+  timeFrom: now - 86400, // Last 24h
   timeTo: now,
   pageSize: 20,
 });
 
-// Iterar sobre TODOS os pedidos de um período
+// Iterate all orders in a time range
 for await (const order of client.order.iterateOrders(123456, {
   timeRangeField: "create_time",
-  timeFrom: now - 86400 * 7, // Últimos 7 dias
+  timeFrom: now - 86400 * 7,
   timeTo: now,
 })) {
-  console.log(`Pedido ${order.orderSn} - Status: ${order.orderStatus}`);
+  console.log(`Order ${order.orderSn} - Status: ${order.orderStatus}`);
 }
 
-// Detalhes do pedido
-const orderDetails = await client.order.getOrderDetails(123456, {
-  orderSnList: ["230101ABCDE123"],
-  responseOptionalFields: ["buyer_user_id", "item_list", "recipient_address"],
-});
-
-// Cancelar pedido
+// Cancel Order
 await client.order.cancelOrder(123456, {
   orderSn: "230101ABCDE123",
   cancelReason: "OUT_OF_STOCK",
-  itemList: [{ item_id: 123, model_id: 456 }], // Opcional: especificar itens
+  itemList: [{ item_id: 123, model_id: 456 }],
 });
 ```
 
-### 🚚 Logistics (Logística)
+### 🚚 Logistics
 
-Gerencie envios, etiquetas e rastreamento.
+Manage shipping, labels and tracking.
 
 ```typescript
-// 1. Obter parâmetros de envio (para saber se é Pickup ou Dropoff)
+// 1. Get Shipping Parameters
 const shippingParams = await client.logistics.getShippingParameter(
   123456,
   "230101ABCDE123"
 );
 
-// 2. Agendar envio (Ship Order)
-// Exemplo para Pickup (Coleta)
+// 2. Ship Order (Pickup Example)
 await client.logistics.shipOrder(123456, {
   orderSn: "230101ABCDE123",
   pickup: {
@@ -217,16 +217,7 @@ await client.logistics.shipOrder(123456, {
   },
 });
 
-// Ou Exemplo para Dropoff (Postagem)
-await client.logistics.shipOrder(123456, {
-  orderSn: "230101ABCDE123",
-  dropoff: {
-    branchId: shippingParams.dropoff.branch_list[0].branch_id,
-  },
-});
-
-// 3. Gerar Etiqueta de Envio (AWB)
-// Primeiro crie a tarefa de geração
+// 3. Generate Shipping Label (AWB)
 await client.logistics.createShippingDocument(123456, [
   {
     orderSn: "230101ABCDE123",
@@ -234,35 +225,25 @@ await client.logistics.createShippingDocument(123456, [
   },
 ]);
 
-// Depois consulte o resultado (pode levar alguns segundos)
-// Em produção, use um mecanismo de polling ou retry
-const docResult = await client.logistics.getShippingDocumentResult(123456, [
-  {
-    orderSn: "230101ABCDE123",
-  },
-]);
+// 4. Download PDF
+// (Assuming status is READY after checking result)
+const pdfBuffer = await client.logistics.downloadShippingDocument(123456, {
+  orderList: [{ orderSn: "230101ABCDE123" }],
+});
 
-// 4. Baixar PDF da etiqueta
-if (docResult.result_list[0].status === "READY") {
-  const pdfBuffer = await client.logistics.downloadShippingDocument(123456, {
-    orderList: [{ orderSn: "230101ABCDE123" }],
-  });
-  // Salvar pdfBuffer em arquivo ou enviar para o client
-}
-
-// Rastreamento
+// 5. Tracking
 const tracking = await client.logistics.getTrackingNumber(
   123456,
   "230101ABCDE123"
 );
-console.log(`Rastreio: ${tracking.tracking_number}`);
+console.log(`Tracking: ${tracking.tracking_number}`);
 ```
 
 ---
 
-## ⚠️ Tratamento de Erros
+## ⚠️ Error Handling
 
-O SDK lança `ShopeeApiError` quando a API retorna um erro.
+The SDK throws `ShopeeApiError` when the API returns an error.
 
 ```typescript
 import { ShopeeApiError } from "shopee-js";
@@ -271,38 +252,38 @@ try {
   await client.shop.getShopInfo(123456);
 } catch (error) {
   if (error instanceof ShopeeApiError) {
-    console.error("Erro da API Shopee:");
-    console.error(`Código: ${error.errorCode}`); // Ex: "error_param"
-    console.error(`Mensagem: ${error.message}`); // Ex: "Invalid shop id"
+    console.error("Shopee API Error:");
+    console.error(`Code: ${error.errorCode}`); // e.g. "error_param"
+    console.error(`Message: ${error.message}`); // e.g. "Invalid shop id"
     console.error(`Request ID: ${error.requestId}`);
   } else {
-    console.error("Erro desconhecido:", error);
+    console.error("Unknown Error:", error);
   }
 }
 ```
 
 ---
 
-## 🛠️ Desenvolvimento e Testes
+## 🛠️ Development
 
-Para contribuir com o SDK ou rodar os testes localmente:
+To contribute or run tests locally:
 
 ```bash
-# Clone o repositório
-git clone https://github.com/seu-usuario/shopee-js.git
+# Clone
+git clone https://github.com/your-username/shopee-js.git
 
-# Instale as dependências
+# Install
 bun install
 
-# Rode os testes
+# Test
 bun test
 
-# Rode o servidor de exemplo (para testar OAuth)
+# Run example server
 bun run examples/server.ts
 ```
 
 ---
 
-## 📄 Licença
+## 📄 License
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
