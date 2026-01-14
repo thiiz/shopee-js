@@ -1,6 +1,6 @@
 /**
  * Shopee SDK Types
- * 
+ *
  * Complete type definitions based on Shopee Open Platform API v2 documentation.
  */
 
@@ -11,122 +11,122 @@
 /**
  * Shopee API environment
  */
-export type Environment = 'production' | 'sandbox';
+export type Environment = "production" | "sandbox";
 
 /**
  * Available regions for Shopee API
  */
-export type Region = 'sg' | 'cn' | 'br';
+export type Region = "sg" | "cn" | "br";
 
 /**
  * API type determines the signature base string format
  */
-export type ApiType = 'shop' | 'merchant' | 'public';
+export type ApiType = "shop" | "merchant" | "public";
 
 /**
  * SDK configuration options
  */
 export interface ShopeeConfig {
-  /** Partner ID from Shopee Open Platform */
-  partnerId: number;
-  /** Partner Key (secret) from Shopee Open Platform */
-  partnerKey: string;
-  /** API environment - 'production' or 'sandbox' */
-  environment?: Environment;
-  /** Region for production API calls - 'sg', 'cn', or 'br' */
-  region?: Region;
-  /** Request timeout in milliseconds (default: 30000) */
-  timeout?: number;
-  /** Custom base URL (useful for proxying requests) */
-  baseUrl?: string;
-  /** Enable debug logging */
-  debug?: boolean;
+	/** Partner ID from Shopee Open Platform */
+	partnerId: number;
+	/** Partner Key (secret) from Shopee Open Platform */
+	partnerKey: string;
+	/** API environment - 'production' or 'sandbox' */
+	environment?: Environment;
+	/** Region for production API calls - 'sg', 'cn', or 'br' */
+	region?: Region;
+	/** Request timeout in milliseconds (default: 30000) */
+	timeout?: number;
+	/** Custom base URL (useful for proxying requests) */
+	baseUrl?: string;
+	/** Enable debug logging */
+	debug?: boolean;
 }
 
 /**
  * Token storage interface
  */
 export interface TokenData {
-  accessToken: string;
-  refreshToken: string;
-  expireIn: number;
-  expiresAt: number;
+	accessToken: string;
+	refreshToken: string;
+	expireIn: number;
+	expiresAt: number;
 }
 
 /**
  * Shop-level token storage
  */
 export interface ShopTokenData extends TokenData {
-  shopId: number;
+	shopId: number;
 }
 
 /**
  * Merchant-level token storage
  */
 export interface MerchantTokenData extends TokenData {
-  merchantId: number;
+	merchantId: number;
 }
 
 /**
  * Base API response
  */
 export interface ApiResponse<T = unknown> {
-  request_id: string;
-  error: string;
-  message: string;
-  warning?: string;
-  response?: T;
+	request_id: string;
+	error: string;
+	message: string;
+	warning?: string;
+	response?: T;
 }
 
 /**
  * Shopee API Error
  */
 export class ShopeeApiError extends Error {
-  public readonly requestId: string;
-  public readonly errorCode: string;
-  public readonly details: string;
-  public readonly response?: unknown;
+	public readonly requestId: string;
+	public readonly errorCode: string;
+	public readonly details: string;
+	public readonly response?: unknown;
 
-  constructor(
-    message: string,
-    requestId: string,
-    errorCode: string,
-    details: string,
-    response?: unknown
-  ) {
-    super(message);
-    this.name = 'ShopeeApiError';
-    this.requestId = requestId;
-    this.errorCode = errorCode;
-    this.details = details;
-    this.response = response;
-  }
+	constructor(
+		message: string,
+		requestId: string,
+		errorCode: string,
+		details: string,
+		response?: unknown,
+	) {
+		super(message);
+		this.name = "ShopeeApiError";
+		this.requestId = requestId;
+		this.errorCode = errorCode;
+		this.details = details;
+		this.response = response;
+	}
 }
 
 /**
  * HTTP request options
  */
 export interface RequestOptions {
-  method: 'GET' | 'POST';
-  path: string;
-  params?: Record<string, unknown>;
-  body?: Record<string, unknown>;
-  apiType: ApiType;
-  shopId?: number;
-  merchantId?: number;
-  accessToken?: string;
+	method: "GET" | "POST";
+	path: string;
+	params?: Record<string, unknown>;
+	body?: Record<string, unknown>;
+	apiType: ApiType;
+	shopId?: number;
+	merchantId?: number;
+	accessToken?: string;
 }
 
 /**
  * Common parameters for all API calls
  */
 export interface CommonParams {
-  partner_id: number;
-  timestamp: number;
-  sign: string;
-  access_token?: string;
-  shop_id?: number;
-  merchant_id?: number;
+	partner_id: number;
+	timestamp: number;
+	sign: string;
+	access_token?: string;
+	shop_id?: number;
+	merchant_id?: number;
 }
 
 // ============================================
@@ -134,35 +134,35 @@ export interface CommonParams {
 // ============================================
 
 export interface AuthLinkOptions {
-  redirectUrl: string;
+	redirectUrl: string;
 }
 
 export interface GetAccessTokenParams {
-  code: string;
-  shopId?: number;
-  mainAccountId?: number;
+	code: string;
+	shopId?: number;
+	mainAccountId?: number;
 }
 
 export interface GetAccessTokenResponse {
-  access_token: string;
-  refresh_token: string;
-  expire_in: number;
-  shop_id_list?: number[];
-  merchant_id_list?: number[];
+	access_token: string;
+	refresh_token: string;
+	expire_in: number;
+	shop_id_list?: number[];
+	merchant_id_list?: number[];
 }
 
 export interface RefreshAccessTokenParams {
-  shopId?: number;
-  merchantId?: number;
+	shopId?: number;
+	merchantId?: number;
 }
 
 export interface RefreshAccessTokenResponse {
-  access_token: string;
-  refresh_token: string;
-  expire_in: number;
-  shop_id?: number;
-  merchant_id?: number;
-  partner_id: number;
+	access_token: string;
+	refresh_token: string;
+	expire_in: number;
+	shop_id?: number;
+	merchant_id?: number;
+	partner_id: number;
 }
 
 // ============================================
@@ -170,23 +170,23 @@ export interface RefreshAccessTokenResponse {
 // ============================================
 
 export interface ShopInfo {
-  shop_id: number;
-  shop_name: string;
-  region: string;
-  status: string;
-  is_cb: boolean;
-  is_cnsc: boolean;
+	shop_id: number;
+	shop_name: string;
+	region: string;
+	status: string;
+	is_cb: boolean;
+	is_cnsc: boolean;
 }
 
 export interface GetShopInfoResponse {
-  shop_name: string;
-  region: string;
-  status: string;
-  is_cb: boolean;
-  is_cnsc: boolean;
-  shop_id: number;
-  auth_time: number;
-  expire_time: number;
+	shop_name: string;
+	region: string;
+	status: string;
+	is_cb: boolean;
+	is_cnsc: boolean;
+	shop_id: number;
+	auth_time: number;
+	expire_time: number;
 }
 
 // ============================================
@@ -194,133 +194,232 @@ export interface GetShopInfoResponse {
 // ============================================
 
 export interface CategoryInfo {
-  category_id: number;
-  parent_category_id: number;
-  original_category_name: string;
-  display_category_name: string;
-  has_children: boolean;
+	category_id: number;
+	parent_category_id: number;
+	original_category_name: string;
+	display_category_name: string;
+	has_children: boolean;
 }
 
 export interface GetCategoryResponse {
-  category_list: CategoryInfo[];
+	category_list: CategoryInfo[];
 }
 
 /**
- * Item/Product status
+ * Item/Product status values returned by the API
  */
-export type ItemStatus = 
-  | 'NORMAL'
-  | 'BANNED'
-  | 'UNLIST'
-  | 'REVIEWING'
-  | 'SELLER_DELETE'
-  | 'SHOPEE_DELETE';
+export type ItemStatus =
+	| "NORMAL"
+	| "BANNED"
+	| "UNLIST"
+	| "REVIEWING"
+	| "SELLER_DELETE"
+	| "SHOPEE_DELETE";
+
+/**
+ * Item status values accepted as filter for get_item_list API.
+ * Note: These differ from ItemStatus values returned in responses.
+ * @see https://open.shopee.com/documents/v2/v2.product.get_item_list
+ */
+export type ItemStatusFilter = "NORMAL" | "BANNED" | "DELETED" | "UNLIST";
 
 /**
  * Item attribute information
  */
 export interface ItemAttribute {
-  attribute_id: number;
-  original_attribute_name: string;
-  is_mandatory: boolean;
-  attribute_value_list: Array<{
-    value_id: number;
-    original_value_name: string;
-    value_unit: string;
-  }>;
+	attribute_id: number;
+	original_attribute_name: string;
+	is_mandatory: boolean;
+	attribute_value_list: Array<{
+		value_id: number;
+		original_value_name: string;
+		value_unit: string;
+	}>;
 }
 
 /**
  * Item price information
  */
 export interface ItemPriceInfo {
-  currency: string;
-  original_price: number;
-  current_price: number;
-  init_price?: number;
+	currency: string;
+	original_price: number;
+	current_price: number;
+	init_price?: number;
 }
 
 /**
  * Item stock information
  */
 export interface ItemStockInfo {
-  stock_type: number;
-  current_stock: number;
-  normal_stock: number;
-  reserved_stock?: number;
+	stock_type: number;
+	current_stock: number;
+	normal_stock: number;
+	reserved_stock?: number;
 }
 
 /**
  * Item logistic information
  */
 export interface ItemLogisticInfo {
-  logistic_id: number;
-  logistic_name: string;
-  enabled: boolean;
-  shipping_fee?: number;
-  is_free_shipping?: boolean;
+	logistic_id: number;
+	logistic_name: string;
+	enabled: boolean;
+	shipping_fee?: number;
+	is_free_shipping?: boolean;
 }
 
 /**
  * Item image information
  */
 export interface ItemImage {
-  image_id_list?: string[];
-  image_url_list?: string[];
+	image_id_list?: string[];
+	image_url_list?: string[];
 }
 
 /**
  * Item video information
  */
 export interface ItemVideoInfo {
-  video_url: string;
-  thumbnail_url: string;
-  duration: number;
+	video_url: string;
+	thumbnail_url: string;
+	duration: number;
 }
 
 /**
- * Basic information for an item
+ * Basic information for an item (raw API response - snake_case)
+ * @internal Used internally by the SDK
  */
-export interface ItemBaseInfo {
-  item_id: number;
-  category_id: number;
-  item_name: string;
-  description: string;
-  item_sku: string;
-  create_time: number;
-  update_time: number;
-  attribute_list?: ItemAttribute[];
-  price_info?: ItemPriceInfo[];
-  stock_info?: ItemStockInfo[];
-  image: ItemImage;
-  weight: string;
-  dimension: {
-    package_length: number;
-    package_width: number;
-    package_height: number;
-  };
-  logistic_info: ItemLogisticInfo[];
-  pre_order: {
-    is_pre_order: boolean;
-    days_to_ship: number;
-  };
-  condition: string;
-  item_status: ItemStatus;
-  has_model: boolean;
-  promotion_id: number;
-  brand?: {
-    brand_id: number;
-    original_brand_name: string;
-  };
-  tax_info?: any;
-  complaint_policy?: any;
+export interface ItemBaseInfoRaw {
+	item_id: number;
+	category_id: number;
+	item_name: string;
+	description: string;
+	item_sku: string;
+	create_time: number;
+	update_time: number;
+	attribute_list?: ItemAttribute[];
+	price_info?: ItemPriceInfo[];
+	stock_info?: ItemStockInfo[];
+	image: ItemImage;
+	weight: string;
+	dimension: {
+		package_length: number;
+		package_width: number;
+		package_height: number;
+	};
+	logistic_info: ItemLogisticInfo[];
+	pre_order: {
+		is_pre_order: boolean;
+		days_to_ship: number;
+	};
+	condition: string;
+	item_status: ItemStatus;
+	has_model: boolean;
+	promotion_id: number;
+	brand?: {
+		brand_id: number;
+		original_brand_name: string;
+	};
+	tax_info?: ItemTaxInfoRaw;
+	complaint_policy?: ItemComplaintPolicyRaw;
+}
+
+/**
+ * Normalized item information (camelCase - developer-friendly)
+ */
+export interface Item {
+	itemId: number;
+	categoryId: number;
+	itemName: string;
+	description: string;
+	itemSku: string;
+	createTime: number;
+	updateTime: number;
+	attributeList?: ItemAttribute[];
+	priceInfo?: ItemPriceInfo[];
+	stockInfo?: ItemStockInfo[];
+	image: ItemImage;
+	weight: string;
+	dimension: {
+		packageLength: number;
+		packageWidth: number;
+		packageHeight: number;
+	};
+	logisticInfo: ItemLogisticInfo[];
+	preOrder: {
+		isPreOrder: boolean;
+		daysToShip: number;
+	};
+	condition: string;
+	itemStatus: ItemStatus;
+	hasModel: boolean;
+	promotionId: number;
+	brand?: {
+		brandId: number;
+		originalBrandName: string;
+	};
+	taxInfo?: ItemTaxInfo;
+	complaintPolicy?: ItemComplaintPolicy;
+}
+
+/**
+ * @deprecated Use Item instead - this is the raw API response
+ */
+export type ItemBaseInfo = ItemBaseInfoRaw;
+
+/**
+ * Tax information for an item (raw API response - snake_case)
+ * @internal
+ */
+export interface ItemTaxInfoRaw {
+	ncm?: string;
+	same_state_cfop?: string;
+	out_state_cfop?: string;
+	origin?: string;
+	cest?: string;
+	tax_code?: string;
+	hs_code?: string;
+}
+
+/**
+ * Tax information for an item (normalized camelCase)
+ */
+export interface ItemTaxInfo {
+	ncm?: string;
+	sameStateCfop?: string;
+	outStateCfop?: string;
+	origin?: string;
+	cest?: string;
+	taxCode?: string;
+	hsCode?: string;
+}
+
+/**
+ * Complaint policy for an item (raw API response - snake_case)
+ * @internal
+ */
+export interface ItemComplaintPolicyRaw {
+	warranty_time?: string;
+	exclude_entrepreneur_warranty?: boolean;
+	complaint_address_id?: number;
+	additional_information?: string;
+}
+
+/**
+ * Complaint policy for an item (normalized camelCase)
+ */
+export interface ItemComplaintPolicy {
+	warrantyTime?: string;
+	excludeEntrepreneurWarranty?: boolean;
+	complaintAddressId?: number;
+	additionalInformation?: string;
 }
 
 /**
  * Response for get_item_base_info
  */
 export interface GetItemBaseInfoResponse {
-  item_list: ItemBaseInfo[];
+	item_list: ItemBaseInfoRaw[];
 }
 
 // ============================================
@@ -330,20 +429,20 @@ export interface GetItemBaseInfoResponse {
 /**
  * Order status - Full list from API documentation
  */
-export type OrderStatus = 
-  | 'UNPAID'           // Order is created, buyer has not paid yet
-  | 'READY_TO_SHIP'    // Seller can arrange shipment
-  | 'PROCESSED'        // Seller has arranged shipment online and got tracking number from 3PL
-  | 'RETRY_SHIP'       // 3PL pickup parcel fail. Need to re arrange shipment
-  | 'SHIPPED'          // The parcel has been drop to 3PL or picked up by 3PL
-  | 'TO_CONFIRM_RECEIVE' // The order has been received by buyer
-  | 'IN_CANCEL'        // The order's cancellation is under processing
-  | 'CANCELLED'        // The order has been canceled
-  | 'TO_RETURN'        // The buyer requested to return the order
-  | 'COMPLETED'        // The order has been completed
-  | 'INVOICE_PENDING'; // Invoice pending (for specific regions)
+export type OrderStatus =
+	| "UNPAID" // Order is created, buyer has not paid yet
+	| "READY_TO_SHIP" // Seller can arrange shipment
+	| "PROCESSED" // Seller has arranged shipment online and got tracking number from 3PL
+	| "RETRY_SHIP" // 3PL pickup parcel fail. Need to re arrange shipment
+	| "SHIPPED" // The parcel has been drop to 3PL or picked up by 3PL
+	| "TO_CONFIRM_RECEIVE" // The order has been received by buyer
+	| "IN_CANCEL" // The order's cancellation is under processing
+	| "CANCELLED" // The order has been canceled
+	| "TO_RETURN" // The buyer requested to return the order
+	| "COMPLETED" // The order has been completed
+	| "INVOICE_PENDING"; // Invoice pending (for specific regions)
 
-export type TimeRangeField = 'create_time' | 'update_time';
+export type TimeRangeField = "create_time" | "update_time";
 
 /**
  * Package status for shipment
@@ -354,154 +453,154 @@ export type PackageStatus = 0 | 1 | 2 | 3; // All, Pending, ToProcess, Processed
  * Package fulfillment/logistics status
  */
 export type LogisticsStatus =
-  | 'LOGISTICS_NOT_START'       // Initial status, package not ready for fulfillment
-  | 'LOGISTICS_PENDING_ARRANGE' // Order logistics pending arrangement (legacy)
-  | 'LOGISTICS_COD_REJECTED'    // Integrated logistics COD: Order rejected for COD (legacy)
-  | 'LOGISTICS_READY'           // Package ready for fulfillment
-  | 'LOGISTICS_REQUEST_CREATED' // Package arranged shipment
-  | 'LOGISTICS_PICKUP_DONE'     // Package handed over to 3PL
-  | 'LOGISTICS_DELIVERY_DONE'   // Package successfully delivered
-  | 'LOGISTICS_INVALID'         // Order cancelled when package at LOGISTICS_READY
-  | 'LOGISTICS_REQUEST_CANCELED'// Order cancelled when package at LOGISTICS_REQUEST_CREATED
-  | 'LOGISTICS_PICKUP_FAILED'   // Order cancelled by 3PL due to failed pickup
-  | 'LOGISTICS_PICKUP_RETRY'    // Package pending 3PL retry pickup
-  | 'LOGISTICS_DELIVERY_FAILED' // Order cancelled due to 3PL delivery failed
-  | 'LOGISTICS_LOST';           // Order cancelled due to 3PL lost the Package
+	| "LOGISTICS_NOT_START" // Initial status, package not ready for fulfillment
+	| "LOGISTICS_PENDING_ARRANGE" // Order logistics pending arrangement (legacy)
+	| "LOGISTICS_COD_REJECTED" // Integrated logistics COD: Order rejected for COD (legacy)
+	| "LOGISTICS_READY" // Package ready for fulfillment
+	| "LOGISTICS_REQUEST_CREATED" // Package arranged shipment
+	| "LOGISTICS_PICKUP_DONE" // Package handed over to 3PL
+	| "LOGISTICS_DELIVERY_DONE" // Package successfully delivered
+	| "LOGISTICS_INVALID" // Order cancelled when package at LOGISTICS_READY
+	| "LOGISTICS_REQUEST_CANCELED" // Order cancelled when package at LOGISTICS_REQUEST_CREATED
+	| "LOGISTICS_PICKUP_FAILED" // Order cancelled by 3PL due to failed pickup
+	| "LOGISTICS_PICKUP_RETRY" // Package pending 3PL retry pickup
+	| "LOGISTICS_DELIVERY_FAILED" // Order cancelled due to 3PL delivery failed
+	| "LOGISTICS_LOST"; // Order cancelled due to 3PL lost the Package
 
 /**
  * Order cancellation reasons (seller)
  */
-export type OrderCancelReason = 'OUT_OF_STOCK' | 'UNDELIVERABLE_AREA';
+export type OrderCancelReason = "OUT_OF_STOCK" | "UNDELIVERABLE_AREA";
 
 export interface GetOrderListParams {
-  time_range_field: TimeRangeField;
-  time_from: number;
-  time_to: number;
-  page_size: number;
-  cursor?: string;
-  order_status?: OrderStatus;
-  response_optional_fields?: string;
+	time_range_field: TimeRangeField;
+	time_from: number;
+	time_to: number;
+	page_size: number;
+	cursor?: string;
+	order_status?: OrderStatus;
+	response_optional_fields?: string;
 }
 
 export interface OrderListItem {
-  order_sn: string;
-  order_status: OrderStatus;
+	order_sn: string;
+	order_status: OrderStatus;
 }
 
 export interface GetOrderListResponse {
-  more: boolean;
-  next_cursor: string;
-  order_list: OrderListItem[];
+	more: boolean;
+	next_cursor: string;
+	order_list: OrderListItem[];
 }
 
 export interface GetOrderDetailParams {
-  order_sn_list: string[];
-  response_optional_fields?: string[];
+	order_sn_list: string[];
+	response_optional_fields?: string[];
 }
 
 export interface OrderItem {
-  item_id: number;
-  item_name: string;
-  item_sku: string;
-  model_id: number;
-  model_name: string;
-  model_sku: string;
-  model_quantity_purchased: number;
-  model_original_price: number;
-  model_discounted_price: number;
-  wholesale: boolean;
-  weight: number;
-  add_on_deal: boolean;
-  main_item: boolean;
-  add_on_deal_id: number;
-  promotion_type: string;
-  promotion_id: number;
-  order_item_id: number;
-  promotion_group_id: number;
-  image_info: {
-    image_url: string;
-  };
+	item_id: number;
+	item_name: string;
+	item_sku: string;
+	model_id: number;
+	model_name: string;
+	model_sku: string;
+	model_quantity_purchased: number;
+	model_original_price: number;
+	model_discounted_price: number;
+	wholesale: boolean;
+	weight: number;
+	add_on_deal: boolean;
+	main_item: boolean;
+	add_on_deal_id: number;
+	promotion_type: string;
+	promotion_id: number;
+	order_item_id: number;
+	promotion_group_id: number;
+	image_info: {
+		image_url: string;
+	};
 }
 
 export interface RecipientAddress {
-  name: string;
-  phone: string;
-  town: string;
-  district: string;
-  city: string;
-  state: string;
-  region: string;
-  zipcode: string;
-  full_address: string;
+	name: string;
+	phone: string;
+	town: string;
+	district: string;
+	city: string;
+	state: string;
+	region: string;
+	zipcode: string;
+	full_address: string;
 }
 
 export interface OrderDetail {
-  order_sn: string;
-  order_status: OrderStatus;
-  region: string;
-  currency: string;
-  cod: boolean;
-  total_amount: number;
-  shipping_carrier: string;
-  payment_method: string;
-  estimated_shipping_fee: number;
-  message_to_seller: string;
-  create_time: number;
-  update_time: number;
-  days_to_ship: number;
-  ship_by_date: number;
-  buyer_user_id: number;
-  buyer_username: string;
-  recipient_address: RecipientAddress;
-  actual_shipping_fee: number;
-  goods_to_declare: boolean;
-  note: string;
-  note_update_time: number;
-  item_list: OrderItem[];
-  pay_time: number;
-  dropshipper: string;
-  dropshipper_phone: string;
-  split_up: boolean;
-  buyer_cancel_reason: string;
-  cancel_by: string;
-  cancel_reason: string;
-  actual_shipping_fee_confirmed: boolean;
-  buyer_cpf_id: string;
-  fulfillment_flag: string;
-  pickup_done_time: number;
-  package_list: PackageInfo[];
-  invoice_data: InvoiceData;
-  checkout_shipping_carrier: string;
-  reverse_shipping_fee: number;
-  order_chargeable_weight_gram: number;
+	order_sn: string;
+	order_status: OrderStatus;
+	region: string;
+	currency: string;
+	cod: boolean;
+	total_amount: number;
+	shipping_carrier: string;
+	payment_method: string;
+	estimated_shipping_fee: number;
+	message_to_seller: string;
+	create_time: number;
+	update_time: number;
+	days_to_ship: number;
+	ship_by_date: number;
+	buyer_user_id: number;
+	buyer_username: string;
+	recipient_address: RecipientAddress;
+	actual_shipping_fee: number;
+	goods_to_declare: boolean;
+	note: string;
+	note_update_time: number;
+	item_list: OrderItem[];
+	pay_time: number;
+	dropshipper: string;
+	dropshipper_phone: string;
+	split_up: boolean;
+	buyer_cancel_reason: string;
+	cancel_by: string;
+	cancel_reason: string;
+	actual_shipping_fee_confirmed: boolean;
+	buyer_cpf_id: string;
+	fulfillment_flag: string;
+	pickup_done_time: number;
+	package_list: PackageInfo[];
+	invoice_data: InvoiceData;
+	checkout_shipping_carrier: string;
+	reverse_shipping_fee: number;
+	order_chargeable_weight_gram: number;
 }
 
 export interface PackageInfo {
-  package_number: string;
-  logistics_status: LogisticsStatus;
-  shipping_carrier: string;
-  item_list: PackageItem[];
+	package_number: string;
+	logistics_status: LogisticsStatus;
+	shipping_carrier: string;
+	item_list: PackageItem[];
 }
 
 export interface PackageItem {
-  item_id: number;
-  model_id: number;
-  order_item_id: number;
-  promotion_group_id: number;
+	item_id: number;
+	model_id: number;
+	order_item_id: number;
+	promotion_group_id: number;
 }
 
 export interface InvoiceData {
-  number: string;
-  series_number: string;
-  access_key: string;
-  issue_date: number;
-  total_value: number;
-  products_total_value: number;
-  tax_code: string;
+	number: string;
+	series_number: string;
+	access_key: string;
+	issue_date: number;
+	total_value: number;
+	products_total_value: number;
+	tax_code: string;
 }
 
 export interface GetOrderDetailResponse {
-  order_list: OrderDetail[];
+	order_list: OrderDetail[];
 }
 
 // ============================================
@@ -509,296 +608,374 @@ export interface GetOrderDetailResponse {
 // ============================================
 
 export interface SearchPackageListParams {
-  package_status: PackageStatus;
-  page_size: number;
-  cursor?: string;
-  sort_by?: 'create_time';
-  sort_direction?: 'ASC' | 'DESC';
-  create_time_from?: number;
-  create_time_to?: number;
+	package_status: PackageStatus;
+	page_size: number;
+	cursor?: string;
+	sort_by?: "create_time";
+	sort_direction?: "ASC" | "DESC";
+	create_time_from?: number;
+	create_time_to?: number;
 }
 
 export interface PackageListItem {
-  order_sn: string;
-  package_number: string;
-  logistics_status: LogisticsStatus;
-  shipping_carrier: string;
-  channel_id: number;
+	order_sn: string;
+	package_number: string;
+	logistics_status: LogisticsStatus;
+	shipping_carrier: string;
+	channel_id: number;
 }
 
 export interface SearchPackageListResponse {
-  more: boolean;
-  next_cursor: string;
-  package_list: PackageListItem[];
+	more: boolean;
+	next_cursor: string;
+	package_list: PackageListItem[];
 }
 
 export interface SplitOrderParams {
-  order_sn: string;
-  package_list: Array<{
-    item_list: Array<{
-      item_id: number;
-      model_id: number;
-      order_item_id: number;
-      promotion_group_id: number;
-    }>;
-  }>;
+	order_sn: string;
+	package_list: Array<{
+		item_list: Array<{
+			item_id: number;
+			model_id: number;
+			order_item_id: number;
+			promotion_group_id: number;
+		}>;
+	}>;
 }
 
 export interface HandleBuyerCancellationParams {
-  order_sn: string;
-  operation: 'ACCEPT' | 'REJECT';
+	order_sn: string;
+	operation: "ACCEPT" | "REJECT";
+}
+
+export interface PackageDetail {
+	package_number: string;
+	logistics_status: LogisticsStatus;
+	shipping_carrier: string;
+	channel_id: number;
+	order_sn: string;
+	tracking_number?: string;
+	first_mile_tracking_number?: string;
+	last_mile_tracking_number?: string;
+	package_status?: string;
+	item_list: Array<{
+		item_id: number;
+		model_id: number;
+		order_item_id: number;
+		promotion_group_id: number;
+		model_quantity_purchased: number;
+	}>;
+}
+
+export interface GetPackageDetailResponse {
+	package_number: string;
+	logistics_status: LogisticsStatus;
+	shipping_carrier: string;
+	channel_id: number;
+	order_sn: string;
+	tracking_number: string;
+	package_status: string;
+	item_list: Array<{
+		item_id: number;
+		model_id: number;
+		order_item_id: number;
+		promotion_group_id: number;
+		model_quantity_purchased: number;
+	}>;
 }
 
 // ============================================
 // Logistics Types
 // ============================================
 
-export type ShippingMethod = 'pickup' | 'dropoff' | 'non_integrated';
+export type ShippingMethod = "pickup" | "dropoff" | "non_integrated";
 
-export interface ShippingParameter {
-  info_needed: {
-    pickup?: string[];
-    dropoff?: string[];
-    non_integrated?: string[];
-  };
-  pickup?: {
-    address_list: PickupAddress[];
-  };
-  dropoff?: {
-    branch_list: DropoffBranch[] | null;
-  };
-}
+/**
+ * @deprecated Use GetShippingParameterResponse instead
+ */
+export type ShippingParameter = GetShippingParameterResponse;
 
 export interface PickupAddress {
-  address_id: number;
-  region: string;
-  state: string;
-  city: string;
-  district: string;
-  town: string;
-  address: string;
-  zipcode: string;
-  address_flag: string[];
-  time_slot_list: TimeSlot[];
+	address_id: number;
+	region: string;
+	state: string;
+	city: string;
+	district: string;
+	town: string;
+	address: string;
+	zipcode: string;
+	address_flag: string[];
+	time_slot_list: TimeSlot[];
 }
 
 export interface TimeSlot {
-  date: number;
-  pickup_time_id: string;
+	date: number;
+	pickup_time_id: string;
 }
 
 export interface DropoffBranch {
-  branch_id: number;
-  region: string;
-  state: string;
-  city: string;
-  address: string;
-  zipcode: string;
-  geo_location: string;
+	branch_id: number;
+	region: string;
+	state: string;
+	city: string;
+	address: string;
+	zipcode: string;
+	geo_location: string;
 }
 
 export interface GetShippingParameterResponse {
-  info_needed: {
-    pickup?: string[];
-    dropoff?: string[];
-    non_integrated?: string[];
-  };
-  pickup?: {
-    address_list: PickupAddress[];
-  };
-  dropoff?: {
-    branch_list: DropoffBranch[] | null;
-  };
+	info_needed: {
+		pickup?: string[];
+		dropoff?: string[];
+		non_integrated?: string[];
+	};
+	pickup?: {
+		address_list: PickupAddress[];
+	};
+	dropoff?: {
+		branch_list: DropoffBranch[] | null;
+	};
 }
 
 export interface ShipOrderParams {
-  order_sn: string;
-  package_number?: string;
-  pickup?: {
-    address_id: number;
-    pickup_time_id: string;
-  };
-  dropoff?: {
-    branch_id?: number;
-    sender_real_name?: string;
-    tracking_number?: string;
-    slug?: string;
-  };
-  non_integrated?: {
-    tracking_number: string;
-  };
+	order_sn: string;
+	package_number?: string;
+	pickup?: {
+		address_id: number;
+		pickup_time_id: string;
+	};
+	dropoff?: {
+		branch_id?: number;
+		sender_real_name?: string;
+		tracking_number?: string;
+		slug?: string;
+	};
+	non_integrated?: {
+		tracking_number: string;
+	};
 }
 
 export interface GetTrackingNumberResponse {
-  tracking_number: string;
-  plp_number?: string;
-  first_mile_tracking_number?: string;
-  last_mile_tracking_number?: string;
-  hint?: string;
+	tracking_number: string;
+	plp_number?: string;
+	first_mile_tracking_number?: string;
+	last_mile_tracking_number?: string;
+	hint?: string;
 }
 
 export interface LogisticsChannel {
-  logistics_channel_id: number;
-  logistics_channel_name: string;
-  cod_enabled: boolean;
-  enabled: boolean;
-  fee_type: string;
-  size_list: SizeInfo[];
-  weight_limit: WeightLimit;
-  item_max_dimension: ItemDimension;
-  volume_limit: VolumeLimit;
-  logistics_description: string;
-  force_enable: boolean;
-  mask_channel_id: number;
-  preferred: boolean;
+	logistics_channel_id: number;
+	logistics_channel_name: string;
+	cod_enabled: boolean;
+	enabled: boolean;
+	fee_type: string;
+	size_list: SizeInfo[];
+	weight_limit: WeightLimit;
+	item_max_dimension: ItemDimension;
+	volume_limit: VolumeLimit;
+	logistics_description: string;
+	force_enable: boolean;
+	mask_channel_id: number;
+	preferred: boolean;
 }
 
 export interface SizeInfo {
-  size_id: string;
-  name: string;
-  default_price: number;
+	size_id: string;
+	name: string;
+	default_price: number;
 }
 
 export interface WeightLimit {
-  item_max_weight: number;
-  item_min_weight: number;
+	item_max_weight: number;
+	item_min_weight: number;
 }
 
 export interface ItemDimension {
-  item_max_height: number;
-  item_max_width: number;
-  item_max_length: number;
+	item_max_height: number;
+	item_max_width: number;
+	item_max_length: number;
 }
 
 export interface VolumeLimit {
-  item_max_volume: number;
-  item_min_volume: number;
+	item_max_volume: number;
+	item_min_volume: number;
 }
 
 export interface GetChannelListResponse {
-  logistics_channel_list: LogisticsChannel[];
+	logistics_channel_list: LogisticsChannel[];
 }
 
 /**
  * Shipping document types
  */
 export type ShippingDocumentType =
-  | 'NORMAL_AIR_WAYBILL'
-  | 'THERMAL_AIR_WAYBILL'
-  | 'NORMAL_JOB_AIR_WAYBILL'
-  | 'THERMAL_JOB_AIR_WAYBILL';
+	| "NORMAL_AIR_WAYBILL"
+	| "THERMAL_AIR_WAYBILL"
+	| "NORMAL_JOB_AIR_WAYBILL"
+	| "THERMAL_JOB_AIR_WAYBILL";
 
 export interface ShippingDocumentInfo {
-  order_sn: string;
-  package_number?: string;
-  document_type: ShippingDocumentType;
+	order_sn: string;
+	package_number?: string;
+	document_type: ShippingDocumentType;
 }
 
 export interface CreateShippingDocumentParams {
-  order_list: ShippingDocumentInfo[];
+	order_list: ShippingDocumentInfo[];
 }
 
 export interface ShippingDocumentResult {
-  order_sn: string;
-  package_number?: string;
-  status: 'READY' | 'PROCESSING' | 'FAILED';
-  fail_error?: string;
-  fail_message?: string;
+	order_sn: string;
+	package_number?: string;
+	status: "READY" | "PROCESSING" | "FAILED";
+	fail_error?: string;
+	fail_message?: string;
 }
 
 export interface GetShippingDocumentResultResponse {
-  result_list: ShippingDocumentResult[];
-  warning: string[];
+	result_list: ShippingDocumentResult[];
+	warning: string[];
+}
+
+export interface GetShippingDocumentParameterResponse {
+	order_list: Array<{
+		order_sn: string;
+		package_number?: string;
+		suggest_shipping_document_type: ShippingDocumentType;
+		ready_to_create_shipping_document: boolean;
+		fail_message?: string;
+	}>;
+}
+
+export interface DownloadShippingDocumentResponse {
+	file: string; // Base64 encoded PDF
+}
+
+export interface GetShippingDocumentDataInfoResponse {
+	shipping_document_data: Array<{
+		order_sn: string;
+		package_number?: string;
+		third_party_waybill_data?: string;
+		first_mile_waybill_data?: string;
+		last_mile_waybill_data?: string;
+	}>;
+}
+
+export interface TrackingInfo {
+	order_sn: string;
+	package_number?: string;
+	logistics_status: TrackingLogisticsStatus;
+	tracking_info: Array<{
+		update_time: number;
+		description: string;
+		logistics_status: TrackingLogisticsStatus;
+	}>;
+}
+
+export interface GetTrackingInfoResponse extends TrackingInfo {}
+
+export interface BatchTrackingResult {
+	order_sn: string;
+	package_number?: string;
+	tracking_number?: string;
+	plp_number?: string;
+	first_mile_tracking_number?: string;
+	last_mile_tracking_number?: string;
+	hint?: string;
+}
+
+export interface GetMassTrackingNumberResponse {
+	result_list: BatchTrackingResult[];
 }
 
 /**
  * Tracking logistics status (for get_tracking_info API)
  */
 export type TrackingLogisticsStatus =
-  | 'INITIAL'
-  | 'ORDER_INIT'
-  | 'ORDER_SUBMITTED'
-  | 'ORDER_FINALIZED'
-  | 'ORDER_CREATED'
-  | 'PICKUP_REQUESTED'
-  | 'PICKUP_PENDING'
-  | 'PICKED_UP'
-  | 'DELIVERY_PENDING'
-  | 'DELIVERED'
-  | 'PICKUP_RETRY'
-  | 'TIMEOUT'
-  | 'LOST'
-  | 'UPDATE'
-  | 'UPDATE_SUBMITTED'
-  | 'UPDATE_CREATED'
-  | 'RETURN_STARTED'
-  | 'RETURNED'
-  | 'RETURN_PENDING'
-  | 'RETURN_INITIATED'
-  | 'EXPIRED'
-  | 'CANCEL'
-  | 'CANCEL_CREATED'
-  | 'CANCELED'
-  | 'FAILED_ORDER_INIT'
-  | 'FAILED_ORDER_SUBMITTED'
-  | 'FAILED_ORDER_CREATED'
-  | 'FAILED_PICKUP_REQUESTED'
-  | 'FAILED_PICKED_UP'
-  | 'FAILED_DELIVERED'
-  | 'FAILED_UPDATE_SUBMITTED'
-  | 'FAILED_UPDATE_CREATED'
-  | 'FAILED_RETURN_STARTED'
-  | 'FAILED_RETURNED'
-  | 'FAILED_CANCEL_CREATED'
-  | 'FAILED_CANCELED';
+	| "INITIAL"
+	| "ORDER_INIT"
+	| "ORDER_SUBMITTED"
+	| "ORDER_FINALIZED"
+	| "ORDER_CREATED"
+	| "PICKUP_REQUESTED"
+	| "PICKUP_PENDING"
+	| "PICKED_UP"
+	| "DELIVERY_PENDING"
+	| "DELIVERED"
+	| "PICKUP_RETRY"
+	| "TIMEOUT"
+	| "LOST"
+	| "UPDATE"
+	| "UPDATE_SUBMITTED"
+	| "UPDATE_CREATED"
+	| "RETURN_STARTED"
+	| "RETURNED"
+	| "RETURN_PENDING"
+	| "RETURN_INITIATED"
+	| "EXPIRED"
+	| "CANCEL"
+	| "CANCEL_CREATED"
+	| "CANCELED"
+	| "FAILED_ORDER_INIT"
+	| "FAILED_ORDER_SUBMITTED"
+	| "FAILED_ORDER_CREATED"
+	| "FAILED_PICKUP_REQUESTED"
+	| "FAILED_PICKED_UP"
+	| "FAILED_DELIVERED"
+	| "FAILED_UPDATE_SUBMITTED"
+	| "FAILED_UPDATE_CREATED"
+	| "FAILED_RETURN_STARTED"
+	| "FAILED_RETURNED"
+	| "FAILED_CANCEL_CREATED"
+	| "FAILED_CANCELED";
 
 // ============================================
 // Return & Refund Types
 // ============================================
 
 export type ReturnStatus =
-  | 'REQUESTED'
-  | 'ACCEPTED'
-  | 'CANCELLED'
-  | 'JUDGING'
-  | 'CLOSED'
-  | 'PROCESSING'
-  | 'SELLER_DISPUTE';
+	| "REQUESTED"
+	| "ACCEPTED"
+	| "CANCELLED"
+	| "JUDGING"
+	| "CLOSED"
+	| "PROCESSING"
+	| "SELLER_DISPUTE";
 
-export type ReturnSolution = 'RETURN_REFUND' | 'REFUND';
+export type ReturnSolution = "RETURN_REFUND" | "REFUND";
 
 export type ReturnReason =
-  | 'NONRECEIPT'
-  | 'WRONG_ITEM'
-  | 'ITEM_DAMAGED'
-  | 'DIFF_DESC'
-  | 'MUITAL_AGREE'
-  | 'OTHER'
-  | 'USED'
-  | 'NO_REASON'
-  | 'ITEM_WRONGDAMAGED'
-  | 'CHANGE_MIND'
-  | 'ITEM_MISSING'
-  | 'EXPECTATION_FAILED'
-  | 'ITEM_FAKE'
-  | 'PHYSICAL_DMG'
-  | 'FUNCTIONAL_DMG'
-  | 'ITEM_NOT_FIT'
-  | 'SUSPICIOUS_PARCEL'
-  | 'EXPIRED_PRODUCT'
-  | 'WRONG_ORDER_INFO'
-  | 'WRONG_ADDRESS'
-  | 'CHANGE_OF_MIND'
-  | 'SELLER_SENT_WRONG_ITEM'
-  | 'SPILLED_CONTENTS'
-  | 'BROKEN_PRODUCTS'
-  | 'DAMAGED_PACKAGE'
-  | 'SCRATCHED'
-  | 'DAMAGED_OTHERS'
-  | 'SIZE_DEVIATION'
-  | 'LOOK_DEVIATION'
-  | 'DATE_DEVIATION'
-  | 'DIFFERENT_DESCRIPTION';
+	| "NONRECEIPT"
+	| "WRONG_ITEM"
+	| "ITEM_DAMAGED"
+	| "DIFF_DESC"
+	| "MUITAL_AGREE"
+	| "OTHER"
+	| "USED"
+	| "NO_REASON"
+	| "ITEM_WRONGDAMAGED"
+	| "CHANGE_MIND"
+	| "ITEM_MISSING"
+	| "EXPECTATION_FAILED"
+	| "ITEM_FAKE"
+	| "PHYSICAL_DMG"
+	| "FUNCTIONAL_DMG"
+	| "ITEM_NOT_FIT"
+	| "SUSPICIOUS_PARCEL"
+	| "EXPIRED_PRODUCT"
+	| "WRONG_ORDER_INFO"
+	| "WRONG_ADDRESS"
+	| "CHANGE_OF_MIND"
+	| "SELLER_SENT_WRONG_ITEM"
+	| "SPILLED_CONTENTS"
+	| "BROKEN_PRODUCTS"
+	| "DAMAGED_PACKAGE"
+	| "SCRATCHED"
+	| "DAMAGED_OTHERS"
+	| "SIZE_DEVIATION"
+	| "LOOK_DEVIATION"
+	| "DATE_DEVIATION"
+	| "DIFFERENT_DESCRIPTION";
 
 // ============================================
 // Ads / Marketing Types (Public Ads)
@@ -807,120 +984,118 @@ export type ReturnReason =
 /**
  * Ad Types
  */
-export type AdType = 'product_search_ad' | 'discovery_ad';
+export type AdType = "product_search_ad" | "discovery_ad";
 
 /**
  * Ad Status
  */
-export type AdStatus = 'ongoing' | 'paused' | 'scheduled' | 'ended' | 'deleted';
+export type AdStatus = "ongoing" | "paused" | "scheduled" | "ended" | "deleted";
 
 /**
  * Ad Placement
  */
-export type AdPlacement = 'all' | 'search_results' | 'landing_page';
+export type AdPlacement = "all" | "search_results" | "landing_page";
 
 export interface AdObject {
-  ad_id: number;
-  shop_id: number;
-  item_id: number;
-  campaign_id: number;
-  account_id: number;
-  keyword_list?: AdKeyword[];
-  placement?: AdPlacement;
-  start_time: number;
-  end_time?: number;
-  ad_status: AdStatus;
-  ad_type: AdType;
-  daily_budget?: number;
-  total_budget?: number;
+	ad_id: number;
+	shop_id: number;
+	item_id: number;
+	campaign_id: number;
+	account_id: number;
+	keyword_list?: AdKeyword[];
+	placement?: AdPlacement;
+	start_time: number;
+	end_time?: number;
+	ad_status: AdStatus;
+	ad_type: AdType;
+	daily_budget?: number;
+	total_budget?: number;
 }
 
 export interface AdKeyword {
-  keyword: string;
-  match_type: 'broad' | 'exact';
-  bid_price: number;
-  status: 'active' | 'paused' | 'deleted';
+	keyword: string;
+	match_type: "broad" | "exact";
+	bid_price: number;
+	status: "active" | "paused" | "deleted";
 }
 
 export interface AdDailyPerformance {
-  date: string; // YYYY-MM-DD
-  shop_id: number;
-  impressions: number;
-  clicks: number;
-  ctr: number;
-  conversions: number;
-  direct_conversions: number;
-  cost: number;
-  gmv: number;
-  direct_gmv: number;
-  roi: number;
-  direct_roi: number;
+	date: string; // YYYY-MM-DD
+	shop_id: number;
+	impressions: number;
+	clicks: number;
+	ctr: number;
+	conversions: number;
+	direct_conversions: number;
+	cost: number;
+	gmv: number;
+	direct_gmv: number;
+	roi: number;
+	direct_roi: number;
 }
 
 export interface GetAdListParams {
-  type: AdType;
-  ids?: number[];
-  item_id?: number;
-  status?: AdStatus;
-  page_size?: number;
-  offset?: number;
+	type: AdType;
+	ids?: number[];
+	item_id?: number;
+	status?: AdStatus;
+	page_size?: number;
+	offset?: number;
 }
 
 export interface GetAdListResponse {
-  ads: AdObject[];
-  total_count: number;
+	ads: AdObject[];
+	total_count: number;
 }
 
 export interface GetShopAdsDailyReportParams {
-  date: string; // YYYY-MM-DD
+	date: string; // YYYY-MM-DD
 }
 
 export interface GetShopAdsDailyReportResponse {
-  performance_list: AdDailyPerformance[];
+	performance_list: AdDailyPerformance[];
 }
 
 export interface MutateAdsParams {
-  operation: 'create' | 'update' | 'delete';
-  ads: Partial<AdObject>[];
+	operation: "create" | "update" | "delete";
+	ads: Partial<AdObject>[];
 }
 
 export interface MutateAdsResponse {
-  results: Array<{
-    ad_id?: number;
-    error_message?: string;
-    success: boolean;
-  }>;
+	results: Array<{
+		ad_id?: number;
+		error_message?: string;
+		success: boolean;
+	}>;
 }
-
-
 
 // ============================================
 // Push/Webhook Types
 // ============================================
 
-export type PushCode = 
-  | 1   // Shop Authorization Push
-  | 2   // Shop Authorization Canceled Push
-  | 3   // Order Status Update Push
-  | 4   // Order TrackingNo Push
-  | 5   // Shopee Updates
-  | 6   // Banned Item Push
-  | 7   // Item Promotion Push
-  | 8   // Reserved Stock Change Push
-  | 9   // Promotion Update Push
-  | 10  // Webchat Push
-  | 11  // Video Upload Push
-  | 12  // Open API Authorization Expiry Push
-  | 13  // Brand Register Result Push
-  | 15; // Shipping Document Status Push
+export type PushCode =
+	| 1 // Shop Authorization Push
+	| 2 // Shop Authorization Canceled Push
+	| 3 // Order Status Update Push
+	| 4 // Order TrackingNo Push
+	| 5 // Shopee Updates
+	| 6 // Banned Item Push
+	| 7 // Item Promotion Push
+	| 8 // Reserved Stock Change Push
+	| 9 // Promotion Update Push
+	| 10 // Webchat Push
+	| 11 // Video Upload Push
+	| 12 // Open API Authorization Expiry Push
+	| 13 // Brand Register Result Push
+	| 15; // Shipping Document Status Push
 
 export interface PushMessage {
-  shop_id: number;
-  code: PushCode;
-  success: number;
-  extra: string;
-  data: Record<string, unknown>;
-  timestamp: number;
+	shop_id: number;
+	code: PushCode;
+	success: number;
+	extra: string;
+	data: Record<string, unknown>;
+	timestamp: number;
 }
 
 // ============================================
@@ -928,74 +1103,74 @@ export interface PushMessage {
 // ============================================
 
 export type TransactionType =
-  | 'ESCROW_VERIFIED_ADD'
-  | 'ESCROW_VERIFIED_MINUS'
-  | 'WITHDRAWAL_CREATED'
-  | 'WITHDRAWAL_COMPLETED'
-  | 'WITHDRAWAL_CANCELLED'
-  | 'REFUND_VERIFIED_ADD'
-  | 'AUTO_REFUND_ADD'
-  | 'ADJUSTMENT_ADD'
-  | 'ADJUSTMENT_MINUS'
-  | 'PAID_ADS_CHARGE'
-  | 'PAID_ADS_REFUND';
+	| "ESCROW_VERIFIED_ADD"
+	| "ESCROW_VERIFIED_MINUS"
+	| "WITHDRAWAL_CREATED"
+	| "WITHDRAWAL_COMPLETED"
+	| "WITHDRAWAL_CANCELLED"
+	| "REFUND_VERIFIED_ADD"
+	| "AUTO_REFUND_ADD"
+	| "ADJUSTMENT_ADD"
+	| "ADJUSTMENT_MINUS"
+	| "PAID_ADS_CHARGE"
+	| "PAID_ADS_REFUND";
 
 // ============================================
 // Promotion Types
 // ============================================
 
 export type PromotionType =
-  | 'Campaign'
-  | 'Discount Promotions'
-  | 'Flash Sale'
-  | 'Whole Sale'
-  | 'Group Buy'
-  | 'Bundle Deal'
-  | 'Welcome Package'
-  | 'Add-on Discount'
-  | 'Brand Sale'
-  | 'In ShopFlash Sale'
-  | 'Gift with purchase'
-  | 'Exclusive Price'
-  | 'Platform Streaming'
-  | 'Seller Streaming';
+	| "Campaign"
+	| "Discount Promotions"
+	| "Flash Sale"
+	| "Whole Sale"
+	| "Group Buy"
+	| "Bundle Deal"
+	| "Welcome Package"
+	| "Add-on Discount"
+	| "Brand Sale"
+	| "In ShopFlash Sale"
+	| "Gift with purchase"
+	| "Exclusive Price"
+	| "Platform Streaming"
+	| "Seller Streaming";
 
 // ============================================
 // Attribute Types
 // ============================================
 
 export type AttributeType =
-  | 'INT_TYPE'
-  | 'STRING_TYPE'
-  | 'ENUM_TYPE'
-  | 'FLOAT_TYPE'
-  | 'DATE_TYPE'
-  | 'TIMESTAMP_TYPE';
+	| "INT_TYPE"
+	| "STRING_TYPE"
+	| "ENUM_TYPE"
+	| "FLOAT_TYPE"
+	| "DATE_TYPE"
+	| "TIMESTAMP_TYPE";
 
 export type AttributeInputType =
-  | 'DROP_DOWN'
-  | 'TEXT_FILED'
-  | 'COMBO_BOX'
-  | 'MULTIPLE_SELECT'
-  | 'MULTIPLE_SELECT_COMBO_BOX';
+	| "DROP_DOWN"
+	| "TEXT_FILED"
+	| "COMBO_BOX"
+	| "MULTIPLE_SELECT"
+	| "MULTIPLE_SELECT_COMBO_BOX";
 
 // ============================================
 // Language Types
 // ============================================
 
 export type Language =
-  | 'zh-hans'
-  | 'zh-hant'
-  | 'ms-my'
-  | 'en-my'
-  | 'en'
-  | 'id'
-  | 'vi'
-  | 'th'
-  | 'pt-br'
-  | 'es-mx'
-  | 'pl'
-  | 'es-CO'
-  | 'es-CL'
-  | 'es-ES'
-  | 'es-ar';
+	| "zh-hans"
+	| "zh-hant"
+	| "ms-my"
+	| "en-my"
+	| "en"
+	| "id"
+	| "vi"
+	| "th"
+	| "pt-br"
+	| "es-mx"
+	| "pl"
+	| "es-CO"
+	| "es-CL"
+	| "es-ES"
+	| "es-ar";

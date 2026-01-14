@@ -1,19 +1,21 @@
-# Shopee-JS SDK
-
-The most complete and robust TypeScript/JavaScript SDK for the [Shopee Open Platform API v2](https://open.shopee.com/).
+# Shopee-JS SDK 🚀
 
 [![npm version](https://img.shields.io/npm/v/shopee-js.svg)](https://www.npmjs.com/package/shopee-js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🌟 Highlights
+The most complete and robust TypeScript/JavaScript SDK for the **Shopee Open Platform API v2**. Designed to be lightweight, fully typed, and extremely easy to integrate into any environment (Node.js, Bun, Cloudflare Workers, etc.).
 
-- 🔐 **Complete OAuth Flow**: Authorization link generation, code-to-token exchange, and automatic token renewal (refresh token).
-- 📦 **Strong Typing (TypeScript)**: All requests and responses are fully typed, ensuring autocomplete and compile-time safety.
-- 🌍 **Multi-Region Support**: Configured to work with Singapore (`sg`), China (`cn`), and Brazil (`br`).
-- 🔄 **Automatic Pagination**: Async iterators (`for await`) to traverse large lists of orders or products without manually handling cursors.
-- 🛡️ **Error Handling**: Dedicated error classes with clear API codes and messages.
-- 📢 **Marketing & Ads**: Dedicated module for Shopee Ads, daily performance reports, and ad management.
-- 🚀 **Zero Runtime Dependencies**: Built on top of `fetch` and `Web Crypto API`, making it lightweight and compatible with Edge Runtimes (Cloudflare Workers, Vercel Edge, Bun, Deno).
+---
+
+## 🌟 Key Features
+
+- 🔐 **Complete OAuth 2.0**: Simplified authorization flow, token exchange, and automatic renewal.
+- 🏗️ **Stateless Architecture**: Full control over token persistence in your own database.
+- 📦 **Strong Typing**: Comprehensive autocomplete for all requests and responses.
+- 🔄 **Auto-Pagination**: Stop worrying about cursors. Use `for await` to traverse thousands of products or orders effortlessly.
+- 🚚 **Advanced Logistics**: Full support for shipping parameters, labels (PDF/Thermal), and real-time tracking.
+- 📢 **Marketing & Ads**: Exclusive module for managing Shopee Ads and performance reports.
+- ⚡ **Zero Dependencies**: Built on top of native `fetch` and `Web Crypto API` for maximum performance and edge compatibility.
 
 ---
 
@@ -31,178 +33,174 @@ npm install shopee-js
 
 ## 🚀 Quick Start
 
-### 1. Initialize Client
-
 ```typescript
 import { ShopeeClient } from "shopee-js";
 
 const client = new ShopeeClient({
-  partnerId: 123456, // Your Partner ID
-  partnerKey: "your-key", // Your Partner Key (Secret)
-  environment: "sandbox", // 'sandbox' or 'production'
-  region: "br", // 'sg', 'cn' or 'br'
-});
-```
-
-### 2. Authentication (OAuth 2.0)
-
-To access a shop's data, the seller must authorize your application.
-
-#### Step A: Generate Authorization Link
-
-```typescript
-const authLink = await client.auth.generateAuthLink({
-  redirectUrl: "https://your-site.com/callback",
-});
-
-console.log("Send the seller to this link:", authLink);
-```
-
-#### Step B: Exchange Code for Tokens
-
-When the seller authorizes, they are redirected to your `redirectUrl` with a `code` and `shop_id`.
-
-```typescript
-// Example in a route handler (Express/Next.js)
-app.get("/callback", async (req, res) => {
-  const code = req.query.code as string;
-  const shopId = Number(req.query.shop_id);
-
-  const tokenResponse = await client.auth.getAccessToken({
-    code,
-    shopId,
-  });
-
-  // IMPORTANT: Save these tokens to your database associated with the shopId!
-  await db.shops.update(shopId, {
-    accessToken: tokenResponse.access_token,
-    refreshToken: tokenResponse.refresh_token,
-    expiresAt: Date.now() + tokenResponse.expire_in * 1000,
-  });
-
-  res.send("Authorization successful!");
-});
-```
-
-### 3. Token Management (Stateless)
-
-The SDK is stateless. You must persist tokens in your database and provide the `accessToken` for each API call.
-
-#### Refreshing Tokens
-
-Access tokens expire after 4 hours. Use the `refreshToken` (valid for 30 days) to get a new one:
-
-```typescript
-const tokens = await client.auth.refreshShopToken(shopId, refreshToken);
-
-// Update your database with new tokens!
-await db.shops.update(shopId, {
-  accessToken: tokens.access_token,
-  refreshToken: tokens.refresh_token,
-  expiresAt: Date.now() + tokens.expire_in * 1000,
+  partnerId: 123456,        // Your Partner ID
+  partnerKey: "your-key",   // Your Partner Key (Secret)
+  environment: "sandbox",   // 'sandbox' or 'production'
+  region: "br",             // 'br', 'sg', or 'cn'
 });
 ```
 
 ---
 
-## 📚 API Modules
+## 🔐 Authentication Flow (OAuth 2.0)
 
-### 🛒 Shop (Store)
+Shopee requires sellers to authorize your app before you can access their data.
 
-Manage basic shop information and configurations.
+### Step 1: Generate Authorization Link
+Redirect the seller to this URL to click "Authorize".
 
 ```typescript
-const shopInfo = await client.shop.getShopInfo(123456, accessToken);
-console.log(`Shop: ${shopInfo.shop_name}`);
+const authUrl = await client.auth.generateAuthLink({
+  redirectUrl: "https://your-site.com/callback",
+});
+// Send the user to authUrl
 ```
 
-### 📦 Product
-
-List, search, and manage products.
+### Step 2: Handle Callback and Obtain Tokens
+After authorization, Shopee redirects back to your URL with `code` and `shop_id` parameters.
 
 ```typescript
-// Iterate over ALL products (Automatic Pagination!)
-for await (const item of client.product.iterateItems(123456, accessToken, {
+// Inside your route handler (e.g., Next.js, Express)
+const { code, shop_id } = req.query;
+
+const tokens = await client.auth.getAccessToken({
+  code: String(code),
+  shopId: Number(shop_id), // or mainAccountId for merchant accounts
+});
+
+/* 
+IMPORTANT: Save access_token and refresh_token to your database!
+tokens = {
+  access_token: "...",
+  refresh_token: "...",
+  expire_in: 14400,
+  ...
+}
+*/
+```
+
+### Step 3: Token Renewal (Refresh)
+Access tokens expire in 4 hours. Use the `refresh_token` (valid for 30 days) to renew:
+
+```typescript
+const newTokens = await client.auth.refreshShopToken(shopId, refreshTokenFromDb);
+// Update your database with the new tokens!
+```
+
+---
+
+## 📚 Modules in Detail
+
+### 🛒 Products (`client.product`)
+The SDK normalizes top-level properties to **camelCase** for a better developer experience.
+
+```typescript
+// Smart Listing with Async Iterators
+// Automatically traverses ALL 'NORMAL' products, handling internal pagination
+for await (const item of client.product.iterateItems(shopId, accessToken, {
+  itemStatus: ["NORMAL"]
+})) {
+  console.log(`Product ID: ${item.itemId}`);
+}
+
+// 🔥 ALL-IN-ONE: List IDs and fetch full details in batches of 50
+for await (const fullItem of client.product.iterateItemsWithDetails(shopId, accessToken, {
   itemStatus: ["NORMAL"],
+  batchSize: 50
 })) {
-  console.log(`Item ID: ${item.itemId}`);
+  console.log(fullItem.itemName, fullItem.priceInfo[0].current_price);
 }
 ```
 
-### 📝 Order
-
-Manage orders, cancellations, and returns.
-
+### 📝 Orders (`client.order`)
 ```typescript
-// List recent orders
-const orders = await client.order.listOrders(123456, accessToken, {
-  timeRangeField: "create_time",
-  timeFrom: Math.floor(Date.now() / 1000) - 86400,
-  timeTo: Math.floor(Date.now() / 1000),
-  pageSize: 20,
+// Fetch details for specific orders
+const orders = await client.order.getOrderDetails(shopId, accessToken, {
+  orderSnList: ["240101ABCD123"],
+  responseOptionalFields: ["item_list", "buyer_user_id"]
 });
 
-// Iterate over orders (Automatic Pagination!)
-for await (const order of client.order.iterateOrders(123456, accessToken, {
-  timeRangeField: "create_time",
-  timeFrom: Math.floor(Date.now() / 1000) - 86400,
-  timeTo: Math.floor(Date.now() / 1000),
-})) {
-  console.log(`Order SN: ${order.orderSn}`);
-}
+// Cancel an order
+await client.order.cancelOrder(shopId, accessToken, {
+  orderSn: "240101ABCD123",
+  cancelReason: "OUT_OF_STOCK"
+});
 ```
 
-### 📢 Marketing (Ads)
-
-Manage Shopee Ads and track performance.
+### 🚚 Logistics (`client.logistics`)
+Complete fulfillment workflow:
 
 ```typescript
-// List ongoing ads
-const ads = await client.marketing.getAdList(123456, accessToken, {
-  type: "product_search_ad",
-  status: "ongoing",
-});
+// 1. Check shipping parameters (Pickup or Dropoff)
+const shippingParams = await client.logistics.getShippingParameter(shopId, accessToken, orderSn);
 
-// Get yesterday's performance report
-const report = await client.marketing.getShopAdsDailyReport(
-  123456,
-  accessToken,
-  {
-    date: "2023-10-01",
+// 2. Schedule shipment
+await client.logistics.shipOrder(shopId, accessToken, {
+  orderSn: orderSn,
+  pickup: {
+    addressId: 123,
+    pickupTimeId: "..."
   }
-);
+});
+
+// 3. Download shipping label (Base64 PDF/Thermal)
+const label = await client.logistics.downloadShippingDocument(shopId, accessToken, [
+  { orderSn, documentType: "THERMAL_AIR_WAYBILL" }
+]);
+```
+
+### 📢 Marketing & Ads (`client.marketing`)
+Monitor and manage Shopee Ads performance.
+
+```typescript
+// Daily performance report
+const report = await client.marketing.getShopAdsDailyReport(shopId, accessToken, {
+  date: "2023-11-20"
+});
+
+// List ongoing ads
+const ads = await client.marketing.getAdList(shopId, accessToken, {
+  type: "product_search_ad",
+  status: "ongoing"
+});
 ```
 
 ---
 
 ## ⚠️ Error Handling
 
-The SDK throws `ShopeeApiError` when the API returns an error.
+The SDK throws `ShopeeApiError` when the Shopee API returns a business error.
 
 ```typescript
 import { ShopeeApiError } from "shopee-js";
 
 try {
-  await client.shop.getShopInfo(123456, accessToken);
+  await client.shop.getShopInfo(shopId, "invalid-token");
 } catch (error) {
   if (error instanceof ShopeeApiError) {
-    console.error(`Status: ${error.errorCode} - ${error.message}`);
+    console.error(`Error Code: ${error.errorCode}`); // e.g., "error_auth"
+    console.error(`Message: ${error.message}`);
+    console.error(`Request ID: ${error.requestId}`);
   }
 }
 ```
 
 ---
 
-## 🛠️ Development
+## 🛠️ Implementation Notes
 
-```bash
-git clone https://github.com/thiiz/shopee-js.git
-bun install
-bun test
-```
+- **Stateless**: The SDK does not store tokens in memory. You must always pass the `accessToken` to methods that require it. This allows you to use a single `client` instance for multiple sellers concurrently.
+- **Normalization**: Top-level item properties are converted to `camelCase`. Nested objects (like `tax_info` or `image`) retain their original `snake_case` keys as defined by Shopee to avoid unnecessary overhead and maintain documentation fidelity.
 
 ---
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) for details.
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+

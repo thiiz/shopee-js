@@ -83,7 +83,7 @@ describe('LogisticsModule', () => {
         order_list: [
           {
             order_sn: 'sn1',
-            package_number: undefined,
+            // Note: package_number is filtered out when undefined
             document_type: 'NORMAL_AIR_WAYBILL',
           },
         ],
