@@ -130,7 +130,7 @@ export class HttpClient {
 		try {
 			const text = await response.text();
 			data = JSON.parse(text) as ApiResponse<T>;
-		} catch (error) {
+		} catch (_error) {
 			throw new Error(
 				`[Shopee SDK] Failed to parse response as JSON: ${response.status} ${response.statusText}`,
 			);

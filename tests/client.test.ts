@@ -101,6 +101,19 @@ describe('ShopeeClient', () => {
       expect(authUrl).toContain('https://partner.shopeemobile.com');
     });
 
+    test('uses production URL for BR region', async () => {
+      const client = new ShopeeClient({
+        ...validConfig,
+        environment: 'production',
+        region: 'br',
+      });
+      const authUrl = await client.auth.generateAuthLink({
+        redirectUrl: 'https://example.com/callback',
+      });
+
+      expect(authUrl).toContain('https://partner.shopeemobile.com');
+    });
+
     test('uses CN URL for CN region', async () => {
       const client = new ShopeeClient({
         ...validConfig,

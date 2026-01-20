@@ -10,7 +10,7 @@ import type { Environment, Region } from "../types/index.js";
 const PRODUCTION_HOSTS: Record<Region, string> = {
 	sg: "https://partner.shopeemobile.com",
 	cn: "https://openplatform.shopee.cn",
-	br: "https://openplatform.shopee.com.br",
+	br: "https://partner.shopeemobile.com",
 };
 
 /**
